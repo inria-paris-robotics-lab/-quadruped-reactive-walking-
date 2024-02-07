@@ -2,6 +2,9 @@
  
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
+#include <pinocchio/algorithm/frames.hpp>
+#include <pinocchio/algorithm/kinematics-derivatives.hpp>
+#include <pinocchio/algorithm/rnea-derivatives.hpp>
 #include "qrw/ResidualFlyHigh.hpp"
 #include "crocoddyl/core/residuals/control.hpp"
 #include "crocoddyl/multibody/data/multibody.hpp"
@@ -39,12 +42,26 @@ BOOST_AUTO_TEST_CASE(test_partial_derivatives_against_numdiff) {
     const Eigen::VectorXd u = Eigen::VectorXd::Random(actuation_model->get_nu());
 
     // // Compute all the pinocchio function needed for the models.
-    // crocoddyl::unittest::updateAllPinocchio(&pin_model, &pin_data, x);
-    // crocoddyl::unittest::updateActuation(actuation_model, actuation_data, x, u);
+    const Eigen::VectorXd& q = x.segment(0, pin_model.nq);
+    const Eigen::VectorXd& v = x.segment(pin_model.nq, pin_model.nv);
+    Eigen::VectorXd a = Eigen::VectorXd::Zero(pin_model.nv);
+
+    pinocchio::forwardKinematics(pin_model, pin_data, q, v, a);
+    pinocchio::computeForwardKinematicsDerivatives(pin_model, pin_data, q, v, a);
+    pinocchio::computeJointJacobians(pin_model, pin_data, q);
+    pinocchio::updateFramePlacements(pin_model, pin_data);
+    pinocchio::computeRNEADerivatives(pin_model, pin_data, q, v, a);
+
+    actuation_model->calc(actuation_data, x, u);
+
+    std::cout << "x: "<< x << std::endl;
+    std::cout << "u: "<< u << std::endl;
 
     // Getting the residual value computed by calc()
     data->r *= nan("");
     flyhigh_cost_model.calc(data, x, u);
+
+    flyhigh_cost_model.calcDiff(data, x, u);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
