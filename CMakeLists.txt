@@ -40,6 +40,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Project options
+option(BUILD_TESTING "Build the tests" ON)
 option(BUILD_PYTHON_INTERFACE "Build the python binding" ON)
 option(BUILD_JOYSTICK "Build with Gamepad support." ON)
 cmake_dependent_option(INSTALL_PYTHON_INTERFACE_ONLY "Install *ONLY* the python bindings"
@@ -125,6 +126,10 @@ target_link_libraries(${PROJECT_NAME} PUBLIC crocoddyl::crocoddyl)
 
 # Link master board library
 # target_link_libraries(${PROJECT_NAME} PUBLIC master_board_sdk::master_board_sdk)
+
+if(BUILD_TESTING)
+  add_subdirectory(unittest)
+endif()
 
 add_project_dependency(yaml-cpp CONFIG REQUIRED)
 if(TARGET yaml-cpp)

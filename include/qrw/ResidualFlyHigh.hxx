@@ -47,13 +47,9 @@ void ResidualModelFlyHighTpl<Scalar>::calc(
   Data* d = static_cast<Data*>(data.get());
 
   pinocchio::updateFramePlacement(pin_model_, *d->pinocchio, frame_id);
-  data->r = pinocchio::getFrameVelocity(pin_model_, *d->pinocchio, frame_id,
-                                        pinocchio::LOCAL_WORLD_ALIGNED)
-                .linear()
-                .head(2);
+  data->r = pinocchio::getFrameVelocity(pin_model_, *d->pinocchio, frame_id, pinocchio::LOCAL_WORLD_ALIGNED).linear().head(2);
   Scalar z = d->pinocchio->oMf[frame_id].translation()[2];
-  // d->ez = exp(-z* z * slope / 2);
-  d->ez = exp(-z * z * slope / 2);
+  d->ez = exp(-z*z / (2 * slope*slope));
   data->r *= d->ez;
 }
 
@@ -75,12 +71,8 @@ void ResidualModelFlyHighTpl<Scalar>::calcDiff(
    * Then r' = v'/e - r/2 z' = R l_v'/e - l_v x Jr/e - r/2 z'
    */
 
-  pinocchio::getFrameVelocityDerivatives(pin_model_, *d->pinocchio, frame_id,
-                                         pinocchio::LOCAL, d->l_dnu_dq,
-                                         d->l_dnu_dv);
-  const Vector3s& v = pinocchio::getFrameVelocity(pin_model_, *d->pinocchio,
-                                                  frame_id, pinocchio::LOCAL)
-                          .linear();
+  pinocchio::getFrameVelocityDerivatives(pin_model_, *d->pinocchio, frame_id, pinocchio::LOCAL, d->l_dnu_dq, d->l_dnu_dv);
+  const Vector3s& v = pinocchio::getFrameVelocity(pin_model_, *d->pinocchio, frame_id, pinocchio::LOCAL).linear();
   const Matrix3s& R = d->pinocchio->oMf[frame_id].rotation();
   Scalar z = d->pinocchio->oMf[frame_id].translation()[2];
 
@@ -98,7 +90,7 @@ void ResidualModelFlyHighTpl<Scalar>::calcDiff(
   // Second term with derivative of z
   data->Rx.leftCols(nv).row(0) -= data->r[0] * slope * d->o_dv_dv.row(2);
   data->Rx.leftCols(nv).row(1) -= data->r[1] * slope * d->o_dv_dv.row(2);
-  data->Rx.leftCols(nv).topRows(2) *= z;
+  data->Rx.leftCols(nv).topRows(2) *= z/(2*slope*slope);
 }
 
 template <typename Scalar>
