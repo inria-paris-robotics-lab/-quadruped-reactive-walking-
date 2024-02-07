@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_SUITE(costs)
 
 BOOST_AUTO_TEST_CASE(test_partial_derivatives_against_numdiff) {
     // Pinocchio model and data
-    const std::string urdf_filename = std::string("/example-robot-data/robots/ur_description/urdf/ur5_robot.urdf");
+    const std::string urdf_filename = std::string(EXAMPLE_ROBOT_DATA_MODEL_DIR "/solo_description/robots/solo12.urdf");
     pinocchio::Model pin_model;
     pinocchio::urdf::buildModel(urdf_filename, pin_model);
     pinocchio::Data pin_data(pin_model);
