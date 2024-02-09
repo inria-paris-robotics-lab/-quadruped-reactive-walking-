@@ -37,7 +37,7 @@ function(_add_test_prototype name prefix dependencies)
 endfunction(_add_test_prototype)
 
 set(TEST_NAMES
-    test-costs)
+    test-residual-models)
 
 foreach(test_name ${TEST_NAMES})
   _add_test_prototype(${test_name} "" ${PROJECT_NAME})
