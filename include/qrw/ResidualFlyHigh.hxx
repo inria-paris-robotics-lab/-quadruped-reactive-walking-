@@ -88,9 +88,8 @@ void ResidualModelFlyHighTpl<Scalar>::calcDiff(
   data->Rx *= d->ez;
 
   // Second term with derivative of z
-  data->Rx.leftCols(nv).row(0) -= data->r[0] * slope * d->o_dv_dv.row(2);
-  data->Rx.leftCols(nv).row(1) -= data->r[1] * slope * d->o_dv_dv.row(2);
-  data->Rx.leftCols(nv).topRows(2) *= z/(2*slope*slope);
+  data->Rx.leftCols(nv).row(0) -= z / (slope*slope) * data->r[0] * d->o_dv_dv.row(2);
+  data->Rx.leftCols(nv).row(1) -= z / (slope*slope) * data->r[1] * d->o_dv_dv.row(2);
 }
 
 template <typename Scalar>

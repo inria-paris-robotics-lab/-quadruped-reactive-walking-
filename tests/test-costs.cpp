@@ -7,7 +7,6 @@
 #include <pinocchio/algorithm/rnea-derivatives.hpp>
 #include "qrw/ResidualFlyHigh.hpp"
 #include "crocoddyl/core/numdiff/residual.hpp"
-#include "crocoddyl/core/residuals/control.hpp"
 #include "crocoddyl/multibody/data/multibody.hpp"
 #include "crocoddyl/multibody/residuals/state.hpp"
 #include "crocoddyl/multibody/actuations/floating-base.hpp"
@@ -24,17 +23,10 @@ void updateAllPinocchio(pinocchio::Model* const model, pinocchio::Data* data, co
   const Eigen::VectorXd& q = x.segment(0, model->nq);
   const Eigen::VectorXd& v = x.segment(model->nq, model->nv);
   Eigen::VectorXd a = Eigen::VectorXd::Zero(model->nv);
-//   Eigen::Matrix<double, 6, Eigen::Dynamic> tmp;
-//   tmp.resize(6, model->nv);
   pinocchio::forwardKinematics(*model, *data, q, v, a);
   pinocchio::computeForwardKinematicsDerivatives(*model, *data, q, v, a);
   pinocchio::computeJointJacobians(*model, *data, q);
   pinocchio::updateFramePlacements(*model, *data);
-//   pinocchio::centerOfMass(*model, *data, q, v, a);
-//   pinocchio::jacobianCenterOfMass(*model, *data, q);
-//   pinocchio::computeCentroidalMomentum(*model, *data, q, v);
-//   pinocchio::computeCentroidalDynamicsDerivatives(*model, *data, q, v, a, tmp,
-                                                //   tmp, tmp, tmp);
   pinocchio::computeRNEADerivatives(*model, *data, q, v, a);
 }
 
