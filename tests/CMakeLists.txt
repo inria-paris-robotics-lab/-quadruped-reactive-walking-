@@ -4,27 +4,23 @@
 
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 
-macro(ADD_TEST_CFLAGS test_name flag)
+macro(add_test_cflags test_name flag)
   set_property(
     TARGET ${test_name}
     APPEND_STRING
     PROPERTY COMPILE_FLAGS " ${flag}")
 endmacro()
 
-file(GLOB TEST_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.hpp)
-message(STATUS "Test headers: ${TEST_HEADERS}")
-
-function(_add_test_prototype name prefix dependencies)
-  set(test_name "test-cpp-${prefix}${name}")
+function(add_qrw_test name dependencies)
+  set(test_name "test-cpp-${name}")
   set(test_file ${name}.cpp)
   message(STATUS "Adding C++ test: ${test_file} (${test_name})")
 
-  add_unit_test(${test_name} ${test_file} ${TEST_HEADERS})
+  add_unit_test(${test_name} ${test_file})
   set_target_properties(${test_name} PROPERTIES LINKER_LANGUAGE CXX)
   target_include_directories(${test_name} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
   # define macros required by boost_test
-  # see: https://www.boost.org/doc/libs/1_78_0/libs/test/doc/html/boost_test/usage_variants.html
   # define module name, replace '-' by '_'
   set(MODULE_NAME "${name}Test")
   string(REGEX REPLACE "-" "_" MODULE_NAME ${MODULE_NAME})
@@ -34,11 +30,10 @@ function(_add_test_prototype name prefix dependencies)
 
   target_link_libraries(${test_name} PUBLIC ${dependencies})
   target_link_libraries(${test_name} PRIVATE Boost::unit_test_framework)
-endfunction(_add_test_prototype)
+endfunction()
 
-set(TEST_NAMES
-    test-residual-models)
+set(TEST_NAMES test-residual-models)
 
 foreach(test_name ${TEST_NAMES})
-  _add_test_prototype(${test_name} "" ${PROJECT_NAME})
+  add_qrw_test(${test_name} ${PROJECT_NAME})
 endforeach(test_name)
