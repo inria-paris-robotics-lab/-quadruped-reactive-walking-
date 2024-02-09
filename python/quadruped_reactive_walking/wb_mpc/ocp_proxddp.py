@@ -122,11 +122,12 @@ class AlgtrOCPFDDP(AlgtrOCPAbstract):
 class AlgtrOCPProx(AlgtrOCPAbstract):
     """Solve the OCP using aligator."""
 
-    def __init__(self, params: Params, base_vel_refs):
+    def __init__(self, params: Params, base_vel_refs, lsc=aligator.LinearSolverChoice.LQ_SOLVER_SERIAL):
         print(Fore.GREEN + "[using SolverProxDDP]" + Fore.RESET)
         mu_init = 1e-11
         self.solver = aligator.SolverProxDDP(params.ocp.tol, mu_init)
         self.solver.force_initial_condition = True
+        self.solver.linear_solver_choice = lsc
         self.solver.rollout_type = aligator.ROLLOUT_LINEAR
         super().__init__(params, base_vel_refs)
 
