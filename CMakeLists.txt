@@ -128,7 +128,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC crocoddyl::crocoddyl)
 # target_link_libraries(${PROJECT_NAME} PUBLIC master_board_sdk::master_board_sdk)
 
 if(BUILD_TESTING)
-  add_subdirectory(unittest)
+  add_subdirectory(tests)
 endif()
 
 add_project_dependency(yaml-cpp CONFIG REQUIRED)
