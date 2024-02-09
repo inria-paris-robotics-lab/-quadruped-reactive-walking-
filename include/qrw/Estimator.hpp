@@ -56,10 +56,10 @@ class Estimator {
 
   void initializeIMUYaw() { initialized_ = false; };
 
-  VectorN getQEstimate() { return qEstimate_; }
-  VectorN getVEstimate() { return vEstimate_; }
-  VectorN getVSecurity() { return vSecurity_; }
-  VectorN getFeetStatus() { return feetStatus_; }
+  ConstVecRefN getQEstimate() { return qEstimate_; }
+  ConstVecRefN getVEstimate() { return vEstimate_; }
+  ConstVecRefN getVSecurity() { return vSecurity_; }
+  ConstVecRefN getFeetStatus() { return feetStatus_; }
   Vector3 getBaseVelocityFK() { return baseVelocityFK_; }
   Vector3 getBasePositionFK() { return basePositionFK_; }
   Vector3 getBBaseVelocity() { return b_baseVelocity_; }
@@ -74,13 +74,13 @@ class Estimator {
   Vector3 getFilterPosAlpha() { return positionFilter_.getAlpha(); }
   Vector3 getFilterPosFiltX() { return positionFilter_.getFilteredX(); }
 
-  VectorN getQReference() { return qRef_; }
-  VectorN getVReference() { return vRef_; }
-  VectorN getBaseVelRef() { return baseVelRef_; }
-  VectorN getBaseAccRef() { return baseAccRef_; }
-  VectorN getHV() { return h_v_; }
-  VectorN getVFiltered() { return vFiltered_; }
-  VectorN getHVFiltered() { return h_vFiltered_; }
+  ConstVecRefN getQReference() { return qRef_; }
+  ConstVecRefN getVReference() { return vRef_; }
+  ConstVecRefN getBaseVelRef() { return baseVelRef_; }
+  ConstVecRefN getBaseAccRef() { return baseAccRef_; }
+  ConstVecRefN getHV() { return h_v_; }
+  ConstVecRefN getVFiltered() { return vFiltered_; }
+  ConstVecRefN getHVFiltered() { return h_vFiltered_; }
   Matrix3 getoRh() { return oRh_; }
   Matrix3 gethRb() { return hRb_; }
   Vector3 getoTh() { return oTh_; }

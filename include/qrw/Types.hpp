@@ -46,6 +46,7 @@ using Matrix3N = Eigen::Matrix<Scalar, 3, Eigen::Dynamic>;
 using Matrix6N = Eigen::Matrix<Scalar, 6, Eigen::Dynamic>;
 using Matrix12N = Eigen::Matrix<Scalar, 12, Eigen::Dynamic>;
 using MatrixN = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>;
+using ConstMatRefN = Eigen::Ref<const MatrixN>;
 using MatrixNi = Eigen::Matrix<int, Eigen::Dynamic, Eigen::Dynamic>;
 
 #endif  // TYPES_H_INCLUDED
