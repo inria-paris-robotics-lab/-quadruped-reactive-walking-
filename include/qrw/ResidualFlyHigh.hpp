@@ -28,10 +28,16 @@ using namespace crocoddyl;
 /**
  * @brief Cost penalizing high horizontal velocity near zero altitude.
  *
- * The cost is r(q,v) = v_foot[:2] / exp(slope*z_foot)
+ * The cost is r(q,v) = v_foot[:2] * exp(- z_foot^2/(2*sigma_height^2))
  * with v_foot = J_foot(q) vq the local-world-aligned linear velocity of the
  * considered frame velocity and z_foot(q) the altitude
  * oMfoot[frameId].translation[2] of the considered frame wrt world.
+ *
+ * Because the cost follows a gaussian in z, the rest of the cost is multiplied by
+ * is multiplied a factor:
+ *  * ~0.30 for z=sigma_height
+ *  * ~0.07 for z=3*sigma_height
+ *  * ~0.006 for z=3*sigma_height
  *
  * \sa `ResidualModelAbstractTpl`, `calc()`, `calcDiff()`, `createData()`
  */
@@ -58,12 +64,12 @@ class ResidualModelFlyHighTpl : public ResidualModelAbstractTpl<_Scalar> {
    * @param[in] state  State of the multibody system
    * @param[in] frame_id ID of the frame that should be considered for altitude
    * and velocity
-   * @param[in] slope  Slope value, ie altitude multiplier.
+   * @param[in] sigma_height  Height reference value.
    * @param[in] nu     Dimension of the control vector
    */
   ResidualModelFlyHighTpl(boost::shared_ptr<StateMultibody> state,
                           const pinocchio::FrameIndex frame_id,
-                          const Scalar slope, const std::size_t nu);
+                          const Scalar sigma_height, const std::size_t nu);
 
   /**
    * @brief Initialize the residual model
@@ -73,11 +79,11 @@ class ResidualModelFlyHighTpl : public ResidualModelAbstractTpl<_Scalar> {
    * @param[in] state  State of the multibody system
    * @param[in] frame_id ID of the frame that should be considered for altitude
    * and velocity
-   * @param[in] slope  Slope value, ie altitude multiplier.
+   * @param[in] sigma_height  Height reference value.
    */
   ResidualModelFlyHighTpl(boost::shared_ptr<StateMultibody> state,
                           const pinocchio::FrameIndex frame_id,
-                          const Scalar slope);
+                          const Scalar sigma_height);
   virtual ~ResidualModelFlyHighTpl();
 
   /**
@@ -114,8 +120,8 @@ class ResidualModelFlyHighTpl : public ResidualModelAbstractTpl<_Scalar> {
    */
   void set_frame_id(const pinocchio::FrameIndex& fid);
 
-  const Scalar getSlope() const { return slope; }
-  void setSlope(const Scalar s) { slope = s; }
+  const Scalar getSigmaHeight() const { return sigma_height; }
+  void setSigmaHeight(const Scalar s) { sigma_height = s; }
 
  protected:
   using Base::nu_;
@@ -126,7 +132,7 @@ class ResidualModelFlyHighTpl : public ResidualModelAbstractTpl<_Scalar> {
 
  private:
   pinocchio::FrameIndex frame_id;
-  Scalar slope;  // multiplication in front of the altitude in the cost
+  Scalar sigma_height;  // multiplication in front of the altitude in the cost
   typename StateMultibody::PinocchioModel
       pin_model_;  //!< Pinocchio model used for internal computations
 };

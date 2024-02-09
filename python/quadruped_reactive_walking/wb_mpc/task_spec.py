@@ -76,7 +76,7 @@ class TaskSpec(TaskSpecBase):
 
         # Cost function weights
         self.friction_mu = task_pms["friction_mu"]
-        self.fly_high_slope = task_pms["fly_high_slope"]
+        self.fly_high_sigma_height = task_pms["fly_high_sigma_height"]
         self.fly_high_w = task_pms["fly_high_w"]
         self.ground_collision_w = task_pms["ground_collision_w"]
         self.vertical_velocity_reg_w = task_pms["vertical_velocity_reg_w"]

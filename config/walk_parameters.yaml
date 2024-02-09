@@ -64,7 +64,7 @@ robot:
 task:
   walk: &base_task_pms
     friction_mu: 0.4
-    fly_high_slope: 2000.
+    fly_high_sigma_height: 0.03 # m
     fly_high_w: 50000.
     ground_collision_w: 1000.
     vertical_velocity_reg_w: 1.

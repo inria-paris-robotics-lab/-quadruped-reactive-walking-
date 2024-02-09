@@ -314,7 +314,7 @@ class WalkingOCPBuilder(OCPBuilder):
         nu = costs.nu
         fly_high_cost = CostModelResidual(
             self.state,
-            ResidualModelFlyHigh(self.state, i, self.task.fly_high_slope / 2.0, nu),
+            ResidualModelFlyHigh(self.state, i, self.task.fly_high_sigma_height, nu),
         )
         name = "{}_flyHigh".format(self.rmodel.frames[i].name)
         costs.addCost(
