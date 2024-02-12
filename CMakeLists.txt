@@ -40,7 +40,6 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Project options
-option(BUILD_TESTING "Build the tests" ON)
 option(BUILD_PYTHON_INTERFACE "Build the python binding" ON)
 option(BUILD_JOYSTICK "Build with Gamepad support." ON)
 cmake_dependent_option(INSTALL_PYTHON_INTERFACE_ONLY "Install *ONLY* the python bindings"
@@ -58,9 +57,21 @@ if(NOT INSTALL_PYTHON_INTERFACE_ONLY)
 endif()
 
 if(BUILD_WITH_ROS_SUPPORT)
+  # ROS macros temper with some variables, save one of them (that affect add_executable for tests)
+  if(DEFINED CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+    set(REMEMBER_CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+  endif(DEFINED CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+
   find_package(catkin REQUIRED message_generation std_msgs)
   add_service_files(DIRECTORY ros_qrw_msgs FILES MPCInit.srv MPCSolve.srv MPCStop.srv)
   generate_messages(DEPENDENCIES std_msgs)
+
+  # Restore saved variable to previous state
+  if(DEFINED REMEMBER_CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${REMEMBER_CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+  else(DEFINED REMEMBER_CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+    unset(CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+  endif(DEFINED REMEMBER_CMAKE_RUNTIME_OUTPUT_DIRECTORY)
 endif()
 
 # Project dependencies

@@ -32,7 +32,9 @@ function(add_qrw_test name dependencies)
   target_link_libraries(${test_name} PRIVATE Boost::unit_test_framework)
 endfunction()
 
-set(TEST_NAMES test-residual-models)
+set(TEST_NAMES
+    residual-models
+)
 
 foreach(test_name ${TEST_NAMES})
   add_qrw_test(${test_name} ${PROJECT_NAME})
