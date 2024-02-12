@@ -52,7 +52,7 @@ void ResidualModelFlyHighTpl<Scalar>::calc(
                 .linear()
                 .head(2);
   Scalar z = d->pinocchio->oMf[frame_id].translation()[2];
-  d->ez = exp(-z*z / (2 * sigma_height*sigma_height));
+  d->ez = exp(-z * z / (2 * sigma_height * sigma_height));
   data->r *= d->ez;
 }
 
@@ -95,8 +95,10 @@ void ResidualModelFlyHighTpl<Scalar>::calcDiff(
   data->Rx *= d->ez;
 
   // Second term with derivative of z
-  data->Rx.leftCols(nv).row(0) -= z / (sigma_height*sigma_height) * data->r[0] * d->o_dv_dv.row(2);
-  data->Rx.leftCols(nv).row(1) -= z / (sigma_height*sigma_height) * data->r[1] * d->o_dv_dv.row(2);
+  data->Rx.leftCols(nv).row(0) -=
+      z / (sigma_height * sigma_height) * data->r[0] * d->o_dv_dv.row(2);
+  data->Rx.leftCols(nv).row(1) -=
+      z / (sigma_height * sigma_height) * data->r[1] * d->o_dv_dv.row(2);
 }
 
 template <typename Scalar>

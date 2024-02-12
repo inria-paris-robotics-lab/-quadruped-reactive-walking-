@@ -57,7 +57,7 @@ if(NOT INSTALL_PYTHON_INTERFACE_ONLY)
 endif()
 
 if(BUILD_WITH_ROS_SUPPORT)
-  # ROS macros temper with some variables, save one of them (that affect add_executable for tests)
+  # ROS macros temper with some variables (that affect add_executable for tests), save it
   if(DEFINED CMAKE_RUNTIME_OUTPUT_DIRECTORY)
     set(REMEMBER_CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
   endif(DEFINED CMAKE_RUNTIME_OUTPUT_DIRECTORY)
