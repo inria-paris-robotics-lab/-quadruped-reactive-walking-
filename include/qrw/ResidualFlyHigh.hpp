@@ -33,8 +33,8 @@ using namespace crocoddyl;
  * considered frame velocity and z_foot(q) the altitude
  * oMfoot[frameId].translation[2] of the considered frame wrt world.
  *
- * Because the cost follows a gaussian in z, the rest of the cost is multiplied
- * by is multiplied a factor:
+ * Because the cost follows a gaussian in z, the rest of the cost is
+ * multiplied by a factor:
  *  * ~0.30 for z=sigma_height
  *  * ~0.07 for z=3*sigma_height
  *  * ~0.006 for z=3*sigma_height
