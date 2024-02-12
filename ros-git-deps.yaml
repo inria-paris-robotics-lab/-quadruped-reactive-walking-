@@ -2,7 +2,7 @@ repositories:
   src/quadruped-reactive-walking:
     type: git
     url: https://github.com/inria-paris-robotics-lab/quadruped-reactive-walking.git
-    version: wbmpc/devel
+    version: main
   src/crocoddyl:
     type: git
     url: https://github.com/loco-3d/crocoddyl.git
