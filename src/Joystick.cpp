@@ -107,7 +107,7 @@ void Joystick::update_v_ref(int k, bool gait_is_static) {
   // Retrieve data from gamepad for velocity
   double pRoll = gamepad.v_x * pRollScale;
   double pPitch = gamepad.v_y * pPitchScale;
-  double pHeight = gamepad.v_z * pHeightScale + params_->h_ref;
+  double pHeight = gamepad.v_z * pHeightScale + params_->pose_init(2);
   double pYaw = gamepad.w_yaw * pYawScale;
   p_gp_ << 0.0, 0.0, pHeight, pRoll, pPitch, pYaw;
 

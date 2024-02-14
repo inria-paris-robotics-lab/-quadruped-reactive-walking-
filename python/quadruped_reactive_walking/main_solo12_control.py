@@ -194,6 +194,7 @@ def main(args):
 
     if params.SIMULATION:
         device.Init(
+            params.pose_init,
             q_init,
             params.env_id,
             params.use_flat_plane,

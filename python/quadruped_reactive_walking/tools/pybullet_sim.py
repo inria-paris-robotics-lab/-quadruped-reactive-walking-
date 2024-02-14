@@ -29,7 +29,7 @@ class PybulletWrapper:
         dt (float): time step of the inverse dynamics
     """
 
-    def __init__(self, q_init, env_id, use_flat_plane, enable_pyb_GUI, dt=0.001):
+    def __init__(self, pose_init, q_init, env_id, use_flat_plane, enable_pyb_GUI, dt=0.001):
         self.applied_force = np.zeros(3)
         self.enable_gui = enable_pyb_GUI
         GUI_OPTIONS = "--width={} --height={}".format(VIDEO_CONFIG["width"], VIDEO_CONFIG["height"])
@@ -275,14 +275,14 @@ class PybulletWrapper:
             if lowest_dist >= 0.001:
                 break  # Robot is above ground already
 
-            z_offset += -lowest_dist  # raise the robot start pos
+            z_offset -= lowest_dist  # raise the robot start pos
             z_offset += 0.01  # give an extra centimeter margin
 
             # Set base pose
             pyb.resetBasePositionAndOrientation(
                 self.robotId,
-                [0.0, 0.0, z_offset],
-                pin.Quaternion(pin.rpy.rpyToMatrix(p_roll, p_pitch, 0.0)).coeffs(),
+                [pose_init[0], pose_init[1], z_offset], # Ignore Z_height to put the robot on the ground by default
+                pose_init[3:] #pin.Quaternion(pin.rpy.rpyToMatrix(p_roll, p_pitch, 0.0)).coeffs(),
             )
 
         # Fix the base in the world frame
@@ -692,7 +692,7 @@ class PyBulletSimulator:
         self.record_video = record_video
         self.video_frames = []
 
-    def Init(self, q, env_id, use_flat_plane, enable_pyb_GUI, dt):
+    def Init(self, pose_init, q, env_id, use_flat_plane, enable_pyb_GUI, dt):
         """
         Initialize the PyBullet simultor with a given environment and a given state of the robot
 
@@ -704,7 +704,7 @@ class PyBulletSimulator:
             enable_pyb_GUI (bool): to display PyBullet GUI or not
             dt (float): time step of the simulation
         """
-        self.pyb_sim = PybulletWrapper(q, env_id, use_flat_plane, enable_pyb_GUI, dt)
+        self.pyb_sim = PybulletWrapper(pose_init, q, env_id, use_flat_plane, enable_pyb_GUI, dt)
         self.q_init = q
         self.joints.positions[:] = q
         self.dt = dt
