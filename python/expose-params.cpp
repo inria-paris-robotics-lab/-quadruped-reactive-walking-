@@ -56,6 +56,7 @@ void exposeParams() {
       .def_readonly("dt_wbc", &Params::dt_wbc)
       .def_readonly("env_id", &Params::env_id)
       .def_readonly("q_init", &Params::q_init)
+      .def_readonly("pose_init", &Params::pose_init)
       .def_readonly("dt_mpc", &Params::dt_mpc)
       .def_readonly("mpc_wbc_ratio", &Params::mpc_wbc_ratio)
       .def_readonly("N_periods", &Params::N_periods)
@@ -87,7 +88,6 @@ void exposeParams() {
       .def_readonly("T_gait", &Params::T_gait)
       .def_readonly("N_gait", &Params::N_gait)
       .def_readonly("window_size", &Params::window_size)
-      .def_readonly("h_ref", &Params::h_ref)
       .def_readonly("footsteps_under_shoulders", &Params::footsteps_under_shoulders)
       .add_property("task", bp::make_getter(&Params::task, rvp_by_value))
       .add_property("sim", bp::make_getter(&Params::sim, rvp_by_value));

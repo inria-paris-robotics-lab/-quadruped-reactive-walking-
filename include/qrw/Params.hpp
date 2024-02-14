@@ -109,9 +109,10 @@ struct Params {
   bool mpc_in_rosnode;    // Run the MPC on a separate rosnode
 
   // General control parameters
-  VectorN q_init;  // Initial articular positions
-  Scalar dt_wbc;   // Time step of the whole body control
-  Scalar dt_mpc;   // Time step of the model predictive control
+  VectorN q_init;    // Initial articular positions
+  VectorN pose_init; //Initial base pose
+  Scalar dt_wbc; // Time step of the whole body control
+  Scalar dt_mpc; // Time step of the model predictive control
   int mpc_wbc_ratio;
   uint N_periods;                        // Number of gait periods in the MPC prediction horizon
   bool save_guess;                       // true to save the initial result of the mpc
@@ -147,7 +148,6 @@ struct Params {
   Scalar T_gait;                      // Period of the gait
   int N_gait;                         // Number of steps in gait
   uint window_size;                   // Window size
-  Scalar h_ref;                       // Reference height for the base
   VectorN footsteps_under_shoulders;  // Positions of footsteps to be "under the shoulder"
 
   YAML::Node task;

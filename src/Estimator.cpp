@@ -72,10 +72,10 @@ void Estimator::initialize(Params &params) {
   alphaSecurity_ = -y + std::sqrt(y * y + 2 * y);
 
   // Initialize Quantities
-  basePositionFK_(2) = params.h_ref;
+  basePositionFK_ = params.pose_init.head(3);
   velocityFilter_.initialize(dt_, Vector3::Zero(), Vector3::Zero());
   positionFilter_.initialize(dt_, Vector3::Zero(), basePositionFK_);
-  qRef_(2, 0) = params.h_ref;
+  qRef_.head(7) = params.pose_init;
   qRef_.tail(12) = Vector12(params.q_init.data());
 
   // Initialize Pinocchio

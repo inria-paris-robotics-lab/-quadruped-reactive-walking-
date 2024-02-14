@@ -32,6 +32,7 @@ Params::Params()
       mpc_in_rosnode(false),
 
       q_init(12),  // Fill with zeros, will be filled with values later
+      pose_init(7),
       dt_wbc(0.0),
       dt_mpc(0.0),
       N_periods(0),
@@ -58,12 +59,12 @@ Params::Params()
       fc_v_esti(0.0),
 
       T_gait(0.0),  // Period of the gait
-      h_ref(0.0),
       footsteps_under_shoulders(12)  // Fill with zeros, will be filled with values later
 {
   Kp_main.setZero();
   Kd_main.setZero();
   q_init.setZero();
+  pose_init.setZero();
   footsteps_under_shoulders.setZero();
 }
 
@@ -154,8 +155,8 @@ bool convert<Params>::decode(const Node &robot_node, Params &rhs) {
   assert_yaml_parsing(robot_node, "robot", "q_init");
   YAML::convert<VectorN>::decode(robot_node["q_init"], rhs.q_init);
 
-  assert_yaml_parsing(robot_node, "robot", "h_ref");
-  rhs.h_ref = robot_node["h_ref"].as<Scalar>();
+  assert_yaml_parsing(robot_node, "robot", "pose_init");
+  YAML::convert<VectorN>::decode(robot_node["pose_init"], rhs.pose_init);
 
   assert_yaml_parsing(robot_node, "robot", "window_size");
   rhs.window_size = robot_node["window_size"].as<uint>();

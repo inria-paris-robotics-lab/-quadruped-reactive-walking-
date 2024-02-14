@@ -3,13 +3,21 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <pinocchio/math/rpy.hpp>
+#include <Eigen/Geometry>
 
 Joystick::Joystick(Params const& params)
     : AnimatorBase(params), p_gp_(Vector6::Zero()), v_gp_(Vector6::Zero()), v_ref_heavy_filter_(Vector6::Zero()) {
   gp_alpha_vel = params.gp_alpha_vel;
   gp_alpha_pos = 0.0;
-  p_ref_.setZero();
-  p_ref_(2, 0) = params.h_ref;
+  p_ref_.head(3) = params_->pose_init.head(3);
+  p_ref_.tail(3) = pinocchio::rpy::matrixToRpy(
+    Eigen::Quaternion<double>(
+      params_->pose_init(3),
+      params_->pose_init(4),
+      params_->pose_init(5),
+      params_->pose_init(6)
+    ).toRotationMatrix());
 
   lock_time_L1_ = std::chrono::system_clock::now();
 
@@ -150,8 +158,14 @@ void Joystick::update_v_ref(int k, bool gait_is_static) {
     } else if (lock_gp) {
       lock_gp = false;
       gp_alpha_vel = params_->gp_alpha_vel;
-      p_ref_.setZero();
-      p_ref_(2, 0) = params_->h_ref;
+      p_ref_.head(3) = params_->pose_init.head(3);
+      p_ref_.tail(3) = pinocchio::rpy::matrixToRpy(
+        Eigen::Quaternion<double>(
+          params_->pose_init(3),
+          params_->pose_init(4),
+          params_->pose_init(5),
+          params_->pose_init(6)
+        ).toRotationMatrix());
       gp_alpha_pos = 0.0;
     }
   }

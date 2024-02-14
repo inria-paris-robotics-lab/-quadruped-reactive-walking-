@@ -16,7 +16,7 @@ class Target:
         self.base_vel_ref = pin.Motion()
 
         if params.movement == "base_circle":
-            self.initial_base = np.array([0.0, 0.0, params.h_ref])
+            self.initial_base = params.pose_init[:3]
             self.A = np.array([0.02, 0.015, 0.0])
             self.offset = np.array([0.0, 0.0, 0.0])
             self.freq = np.array([0.5, 0.5, 0.0])
@@ -106,15 +106,14 @@ class Target:
 
 def make_footsteps_and_refs(params, target: Target):
     """
-    Build a list of both footstep position and base pose references.
+    Build a list of both footstep position and base velocity references.
     Footsteps is a list of 3,4-matrices
-    Base_vel_refs is a list of 6-vectors (6D velocity references)
+    Base_vel_refs is a list of pin.Motion (6D values)
     """
     footsteps = []
     base_refs = []
     for k in range(params.N_gait):
-        target_base_vel = np.array([0.0, 0.0, params.h_ref, 0.0, 0.0, 0.0])
-        target_base_vel = pin.Motion(target_base_vel)
+        target_base_vel = pin.Motion(np.zeros(6))
         kk = k * params.mpc_wbc_ratio
         target_footstep = target.compute(kk).copy()
 

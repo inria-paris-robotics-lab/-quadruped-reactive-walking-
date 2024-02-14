@@ -8,7 +8,7 @@ class TaskSpecBase:
     def __init__(self, params: Params, frozen_names=[]):
         self.robot = erd.load("solo12")
         self.q0 = self.robot.q0
-        self.q0[:7] = np.array([0.0, 0.0, params.h_ref, 0, 0, 0, 1])
+        self.q0[:7] = params.pose_init
         self.q0[7:] = params.q_init
 
         self.model: pin.Model = self.robot.model

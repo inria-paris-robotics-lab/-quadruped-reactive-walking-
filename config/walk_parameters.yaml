@@ -27,7 +27,7 @@ robot:
   # q_init: [0.0, 0.865, -1.583, 0.0, 0.865, -1.583, 0.0, 0.865, -1.583, 0.0, 0.865, -1.583]  # h_com = 0.2
   # q_init: [0.0, 0.764, -1.407, 0.0, 0.76407, -1.4, 0.0, 0.76407, -1.407, 0.0, 0.764, -1.407]  # h_com = 0.218
   q_init: [0.0, 0.7, -1.4, 0.0, 0.7, -1.4, 0.0, -0.7, 1.4, 0.0, -0.7, 1.4]  # Initial articular positions
-  h_ref: 0.260748  # Reference height for the base
+  pose_init: [0.0, 0.0, 0.260748, 0.0, 0.0, 0.0, 1.0]  # Initiel base pose
   window_size: 2  # MPC window size
   dt_wbc: 0.001  # Time step of the whole body control
   dt_mpc: 0.012  # Time step of the model predictive control

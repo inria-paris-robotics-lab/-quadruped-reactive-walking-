@@ -32,13 +32,10 @@ class ControllerResult:
 
 
 class DummyDevice:
-    def __init__(self, h):
+    def __init__(self, base_pose):
         self.imu = self.IMU()
         self.joints = self.Joints()
-        self.base_position = np.zeros(3)
-        self.base_position[2] = 0.1944
-        self.b_base_velocity = np.zeros(3)
-        self.baseState = ((0.0, 0.0, h), (0.0, 0.0, 0.0, 1.0))
+        self.baseState = (base_pose[:3], base_pose[3:])
         self.baseVel = ((0.0, 0.0, 0.0), (0.0, 0.0, 0.0))
 
     class IMU:
@@ -121,7 +118,7 @@ class Controller:
         self.filter_q = qrw.LowPassFilter(params)
         self.filter_v = qrw.LowPassFilter(params)
 
-        device = DummyDevice(params.h_ref)
+        device = DummyDevice(params.pose_init)
         device.joints.positions = q_init
         self.compute(device)
 

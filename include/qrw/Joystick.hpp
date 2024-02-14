@@ -7,8 +7,7 @@
 ///
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef JOYSTICK_H_INCLUDED
-#define JOYSTICK_H_INCLUDED
+#pragma once
 
 #include <chrono>
 #include <linux/joystick.h>
@@ -102,5 +101,3 @@ class Joystick : public AnimatorBase {
   int js;                  // Identifier of the gamepad object
   struct js_event event;   // Gamepad event object
 };
-
-#endif  // JOYSTICK_H_INCLUDED
