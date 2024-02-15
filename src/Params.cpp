@@ -6,15 +6,12 @@ template struct YAML::convert<VectorN>;
 
 std::ostream &operator<<(std::ostream &oss, const OCPParams &p) {
   oss << "OCPParams {"
-      << "\n\tnum_threads:\t" << p.num_threads << "\n\tmax_iter:\t"
-      << p.max_iter << "\n\tinit_max_iters:\t" << p.init_max_iters
-      << "\n\tverbose:\t" << p.verbose << "\n}";
+      << "\n\tnum_threads:\t" << p.num_threads << "\n\tmax_iter:\t" << p.max_iter << "\n\tinit_max_iters:\t"
+      << p.init_max_iters << "\n\tverbose:\t" << p.verbose << "\n}";
   return oss;
 }
 
-int compute_k_mpc(const Params &params) {
-  return static_cast<int>(std::round(params.dt_mpc / params.dt_wbc));
-}
+int compute_k_mpc(const Params &params) { return static_cast<int>(std::round(params.dt_mpc / params.dt_wbc)); }
 
 Params::Params()
     : raw_str(""),
@@ -62,8 +59,7 @@ Params::Params()
 
       T_gait(0.0),  // Period of the gait
       h_ref(0.0),
-      footsteps_under_shoulders(
-          12)  // Fill with zeros, will be filled with values later
+      footsteps_under_shoulders(12)  // Fill with zeros, will be filled with values later
 {
   Kp_main.setZero();
   Kd_main.setZero();
@@ -207,8 +203,7 @@ bool convert<Params>::decode(const Node &robot_node, Params &rhs) {
   rhs.interpolate_mpc = robot_node["interpolate_mpc"].as<bool>();
 
   assert_yaml_parsing(robot_node, "robot", "interpolation_type");
-  rhs.interpolation_type =
-      (InterpolationType)robot_node["interpolation_type"].as<uint>();
+  rhs.interpolation_type = (InterpolationType)robot_node["interpolation_type"].as<uint>();
 
   assert_yaml_parsing(robot_node, "robot", "closed_loop");
   rhs.closed_loop = robot_node["closed_loop"].as<bool>();
@@ -288,8 +283,7 @@ void Params::convert_gait_vec() {
   int k = 0;
   for (uint i = 0; i < gait_vec.size() / 5; i++) {
     for (int j = 0; j < gait_vec[5 * i]; j++) {
-      gait.row(k) << gait_vec[5 * i + 1], gait_vec[5 * i + 2],
-          gait_vec[5 * i + 3], gait_vec[5 * i + 4];
+      gait.row(k) << gait_vec[5 * i + 1], gait_vec[5 * i + 2], gait_vec[5 * i + 3], gait_vec[5 * i + 4];
       k++;
     }
   }

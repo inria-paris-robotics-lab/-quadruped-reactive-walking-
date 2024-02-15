@@ -16,8 +16,7 @@ struct IMPCWrapper {
 
   int N_gait() const { return params_.N_gait; }
   uint window_size() const { return params_.window_size; }
-  virtual void solve(uint k, const ConstVecRefN &x0, Vector4 footstep,
-                     Motion base_vel_ref) = 0;
+  virtual void solve(uint k, const ConstVecRefN &x0, Vector4 footstep, Motion base_vel_ref) = 0;
   virtual MPCResult get_latest_result() const = 0;
 };
 

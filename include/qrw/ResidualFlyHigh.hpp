@@ -69,7 +69,8 @@ class ResidualModelFlyHighTpl : public ResidualModelAbstractTpl<_Scalar> {
    */
   ResidualModelFlyHighTpl(boost::shared_ptr<StateMultibody> state,
                           const pinocchio::FrameIndex frame_id,
-                          const Scalar sigma_height, const std::size_t nu);
+                          const Scalar sigma_height,
+                          const std::size_t nu);
 
   /**
    * @brief Initialize the residual model
@@ -107,8 +108,7 @@ class ResidualModelFlyHighTpl : public ResidualModelAbstractTpl<_Scalar> {
   virtual void calcDiff(const boost::shared_ptr<ResidualDataAbstract>& data,
                         const Eigen::Ref<const VectorXs>& x,
                         const Eigen::Ref<const VectorXs>& u);
-  virtual boost::shared_ptr<ResidualDataAbstract> createData(
-      DataCollectorAbstract* const data);
+  virtual boost::shared_ptr<ResidualDataAbstract> createData(DataCollectorAbstract* const data);
 
   /**
    * @brief Return the frame index.
@@ -132,9 +132,8 @@ class ResidualModelFlyHighTpl : public ResidualModelAbstractTpl<_Scalar> {
 
  private:
   pinocchio::FrameIndex frame_id;
-  Scalar sigma_height;  // multiplication in front of the altitude in the cost
-  typename StateMultibody::PinocchioModel
-      pin_model_;  //!< Pinocchio model used for internal computations
+  Scalar sigma_height;                                 // multiplication in front of the altitude in the cost
+  typename StateMultibody::PinocchioModel pin_model_;  //!< Pinocchio model used for internal computations
 };
 
 template <typename _Scalar>
@@ -150,8 +149,7 @@ struct ResidualDataFlyHighTpl : public ResidualDataAbstractTpl<_Scalar> {
   typedef typename MathBase::VectorXs VectorXs;
 
   template <template <typename Scalar> class Model>
-  ResidualDataFlyHighTpl(Model<Scalar>* const model,
-                         DataCollectorAbstract* const data)
+  ResidualDataFlyHighTpl(Model<Scalar>* const model, DataCollectorAbstract* const data)
       : Base(model, data),
         d_dq(6, model->get_state()->get_nv()),
         d_dv(6, model->get_state()->get_nv()),
@@ -163,8 +161,7 @@ struct ResidualDataFlyHighTpl : public ResidualDataAbstractTpl<_Scalar> {
         vxJ(3, model->get_state()->get_nv()) {
     // dvcom_dq.setZero();
     //  Check that proper shared data has been passed
-    DataCollectorMultibodyTpl<Scalar>* d =
-        dynamic_cast<DataCollectorMultibodyTpl<Scalar>*>(shared);
+    DataCollectorMultibodyTpl<Scalar>* d = dynamic_cast<DataCollectorMultibodyTpl<Scalar>*>(shared);
     if (d == NULL) {
       throw_pretty(
           "Invalid argument: the shared data should be derived from "

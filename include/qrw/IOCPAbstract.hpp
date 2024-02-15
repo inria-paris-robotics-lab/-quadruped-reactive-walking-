@@ -14,8 +14,7 @@ class IOCPAbstract {
   IOCPAbstract(Params const& params);
   virtual ~IOCPAbstract() = default;
 
-  virtual void push_node(uint k, const ConstVecRefN& x0, Matrix34 footsteps,
-                         Motion base_vel_ref) = 0;
+  virtual void push_node(uint k, const ConstVecRefN& x0, Matrix34 footsteps, Motion base_vel_ref) = 0;
   virtual void solve(std::size_t k) = 0;
 
   Params params_;

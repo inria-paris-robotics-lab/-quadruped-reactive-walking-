@@ -8,8 +8,7 @@ namespace qrw {
 struct OCPWrapper : IOCPAbstract, bp::wrapper<IOCPAbstract> {
   using IOCPAbstract::IOCPAbstract;
 
-  void push_node(uint k, const ConstVecRefN &x0, Matrix34 footsteps,
-                 Motion base_vel_ref) override {
+  void push_node(uint k, const ConstVecRefN &x0, Matrix34 footsteps, Motion base_vel_ref) override {
     bp::override fn = get_override("push_node");
     fn(k, x0, footsteps, base_vel_ref);
   }
@@ -26,14 +25,15 @@ struct OCPWrapper : IOCPAbstract, bp::wrapper<IOCPAbstract> {
 
 void exposeSolverInterface() {
   eigenpy::OptionalConverter<uint>::registration();
-  bp::class_<OCPWrapper, boost::noncopyable>("IOCPAbstract",
-                                             "Base OCP interface.", bp::no_init)
+  bp::class_<OCPWrapper, boost::noncopyable>("IOCPAbstract", "Base OCP interface.", bp::no_init)
       .def(bp::init<Params const &>(bp::args("self", "params")))
       .def("solve", bp::pure_virtual(&OCPWrapper::solve), bp::args("self", "k"))
-      .def("push_node", bp::pure_virtual(&OCPWrapper::push_node),
+      .def("push_node",
+           bp::pure_virtual(&OCPWrapper::push_node),
            bp::args("self", "k", "x0", "footsteps", "base_vel_ref"),
            "Push a new node to the OCP.")
-      .def("get_results", bp::pure_virtual(&OCPWrapper::get_results),
+      .def("get_results",
+           bp::pure_virtual(&OCPWrapper::get_results),
            (bp::arg("self"), bp::arg("window_size") = boost::none),
            "Fetch the results of the latest MPC iteration.")
       .def_readonly("params", &IOCPAbstract::params_)
@@ -42,11 +42,11 @@ void exposeSolverInterface() {
       .def_readonly("init_max_iters", &IOCPAbstract::init_max_iters)
       .def_readwrite("xs_init", &IOCPAbstract::xs_init)
       .def_readwrite("us_init", &IOCPAbstract::us_init)
-      .def("cycle_warm_start", &IOCPAbstract::cycle_warm_start,
-           bp::args("self"), "Cycle the warm start.")
-      .def("warm_start_empty", &IOCPAbstract::warm_start_empty,
-           bp::args("self"), "Check is the warm-start is empty.")
-      .def("_check_ws_dim", &IOCPAbstract::_check_ws_dim, bp::args("self"),
+      .def("cycle_warm_start", &IOCPAbstract::cycle_warm_start, bp::args("self"), "Cycle the warm start.")
+      .def("warm_start_empty", &IOCPAbstract::warm_start_empty, bp::args("self"), "Check is the warm-start is empty.")
+      .def("_check_ws_dim",
+           &IOCPAbstract::_check_ws_dim,
+           bp::args("self"),
            "Check whether the warm-start has the right size.");
 }
 

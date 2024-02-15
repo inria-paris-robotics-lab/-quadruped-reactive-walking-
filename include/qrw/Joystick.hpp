@@ -63,10 +63,9 @@ class Joystick : public AnimatorBase {
   bool getR1() { return gamepad.R1 == 1; }
 
  private:
-  Vector6 p_gp_;  // Raw position reference of the gamepad
-  Vector6 v_gp_;  // Raw velocity reference of the gamepad
-  Vector6
-      v_ref_heavy_filter_;  // Reference velocity after heavy low pass filter
+  Vector6 p_gp_;                // Raw position reference of the gamepad
+  Vector6 v_gp_;                // Raw velocity reference of the gamepad
+  Vector6 v_ref_heavy_filter_;  // Reference velocity after heavy low pass filter
 
   int joystick_code_ = 0;  // Code to trigger gait changes
   bool stop_ = false;      // Flag to stop the controller
@@ -74,11 +73,9 @@ class Joystick : public AnimatorBase {
 
   // How much the gamepad velocity and position is filtered to avoid sharp
   // changes
-  double gp_alpha_vel =
-      0.0;  // Low pass filter coefficient for v_ref_ (if gamepad-controlled)
-  double gp_alpha_pos = 0.0;  // Low pass filter coefficient for p_ref_
-  double gp_alpha_vel_heavy_filter =
-      0.002;  // Low pass filter coefficient for v_ref_heavy_filter_
+  double gp_alpha_vel = 0.0;                 // Low pass filter coefficient for v_ref_ (if gamepad-controlled)
+  double gp_alpha_pos = 0.0;                 // Low pass filter coefficient for p_ref_
+  double gp_alpha_vel_heavy_filter = 0.002;  // Low pass filter coefficient for v_ref_heavy_filter_
 
   // Maximum velocity values
   double vXScale = 0.3;    // Lateral
@@ -93,13 +90,11 @@ class Joystick : public AnimatorBase {
 
   // Variable to handle the automatic static/trot switching
   bool switch_static = false;   // Flag to switch to a static gait
-  bool lock_gp = true;          // Flag to lock the output velocity when we are
-                                // switching back to trot gait
+  bool lock_gp = true;          // Flag to lock the output velocity when we are switching back to trot gait
   double lock_duration_ = 1.0;  // Duration of the lock in seconds
-  std::chrono::time_point<std::chrono::system_clock>
-      lock_time_static_;  // Timestamp of the start of the lock
-  std::chrono::time_point<std::chrono::system_clock>
-      lock_time_L1_;  // Timestamp of the latest L1 pressing
+
+  std::chrono::time_point<std::chrono::system_clock> lock_time_static_;  // Timestamp of the start of the lock
+  std::chrono::time_point<std::chrono::system_clock> lock_time_L1_;      // Timestamp of the latest L1 pressing
 
   // Gamepad client variables
   gamepad_status gamepad;  // Structure that stores gamepad status

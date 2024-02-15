@@ -23,45 +23,42 @@ void exposeResidualFlyHigh() {
 
   bp::class_<ResidualModelFlyHigh, bp::bases<ResidualModelAbstract> >(
       "ResidualModelFlyHigh",
-      bp::init<boost::shared_ptr<StateMultibody>, pinocchio::FrameIndex, double,
-               std::size_t>(
+      bp::init<boost::shared_ptr<StateMultibody>, pinocchio::FrameIndex, double, std::size_t>(
           bp::args("self", "state", "frame_id", "sigma_height", "nu"),
           "Initialize the residual model.\n\n"
           ":param state: state of the multibody system\n"
           ":param frame_id: reference colliding frame\n"
           ":param sigma_height: height reference value."
           ":param nu: dimension of control vector"))
-      .def<void (ResidualModelFlyHigh::*)(
-          const boost::shared_ptr<ResidualDataAbstract>&,
-          const Eigen::Ref<const Eigen::VectorXd>&,
-          const Eigen::Ref<const Eigen::VectorXd>&)>(
-          "calc", &ResidualModelFlyHigh::calc,
+      .def<void (ResidualModelFlyHigh::*)(const boost::shared_ptr<ResidualDataAbstract>&,
+                                          const Eigen::Ref<const Eigen::VectorXd>&,
+                                          const Eigen::Ref<const Eigen::VectorXd>&)>(
+          "calc",
+          &ResidualModelFlyHigh::calc,
           bp::args("self", "data", "x", "u"),
           "Compute the residual.\n\n"
           ":param data: residual data\n"
           ":param x: time-discrete state vector\n"
           ":param u: time-discrete control input")
-      .def<void (ResidualModelFlyHigh::*)(
-          const boost::shared_ptr<ResidualDataAbstract>&,
-          const Eigen::Ref<const Eigen::VectorXd>&)>(
+      .def<void (ResidualModelFlyHigh::*)(const boost::shared_ptr<ResidualDataAbstract>&,
+                                          const Eigen::Ref<const Eigen::VectorXd>&)>(
           "calc", &ResidualModelAbstract::calc, bp::args("self", "data", "x"))
-      .def<void (ResidualModelFlyHigh::*)(
-          const boost::shared_ptr<ResidualDataAbstract>&,
-          const Eigen::Ref<const Eigen::VectorXd>&,
-          const Eigen::Ref<const Eigen::VectorXd>&)>(
-          "calcDiff", &ResidualModelFlyHigh::calcDiff,
+      .def<void (ResidualModelFlyHigh::*)(const boost::shared_ptr<ResidualDataAbstract>&,
+                                          const Eigen::Ref<const Eigen::VectorXd>&,
+                                          const Eigen::Ref<const Eigen::VectorXd>&)>(
+          "calcDiff",
+          &ResidualModelFlyHigh::calcDiff,
           bp::args("self", "data", "x", "u"),
           "Compute the Jacobians of the residual.\n\n"
           "It assumes that calc has been run first.\n"
           ":param data: action data\n"
           ":param x: time-discrete state vector\n"
           ":param u: time-discrete control input\n")
-      .def<void (ResidualModelFlyHigh::*)(
-          const boost::shared_ptr<ResidualDataAbstract>&,
-          const Eigen::Ref<const Eigen::VectorXd>&)>(
-          "calcDiff", &ResidualModelAbstract::calcDiff,
-          bp::args("self", "data", "x"))
-      .def("createData", &ResidualModelFlyHigh::createData,
+      .def<void (ResidualModelFlyHigh::*)(const boost::shared_ptr<ResidualDataAbstract>&,
+                                          const Eigen::Ref<const Eigen::VectorXd>&)>(
+          "calcDiff", &ResidualModelAbstract::calcDiff, bp::args("self", "data", "x"))
+      .def("createData",
+           &ResidualModelFlyHigh::createData,
            bp::with_custodian_and_ward_postcall<0, 2>(),
            bp::args("self", "data"),
            "Create the residual data.\n\n"
@@ -75,23 +72,23 @@ void exposeResidualFlyHigh() {
       //               &ResidualModelFlyHigh::get_frame_id,
       //               &ResidualModelFlyHigh::set_frame_id,
       //               "Frame ID")
-      .add_property("sigma_height", &ResidualModelFlyHigh::getSigmaHeight,
+      .add_property("sigma_height",
+                    &ResidualModelFlyHigh::getSigmaHeight,
                     &ResidualModelFlyHigh::setSigmaHeight,
                     "Set sigma_height (ie the height reference value)");
 
   bp::register_ptr_to_python<boost::shared_ptr<ResidualDataFlyHigh> >();
 
   bp::class_<ResidualDataFlyHigh, bp::bases<ResidualDataAbstract> >(
-      "ResidualDataFlyHigh", "Data for vel collision residual.\n\n",
+      "ResidualDataFlyHigh",
+      "Data for vel collision residual.\n\n",
       bp::init<ResidualModelFlyHigh*, DataCollectorAbstract*>(
           bp::args("self", "model", "data"),
           "Create vel collision residual data.\n\n"
           ":param model: pair collision residual model\n"
-          ":param data: shared data")[bp::with_custodian_and_ward<
-          1, 2, bp::with_custodian_and_ward<1, 3> >()])
+          ":param data: shared data")[bp::with_custodian_and_ward<1, 2, bp::with_custodian_and_ward<1, 3> >()])
       .add_property("pinocchio",
-                    bp::make_getter(&ResidualDataFlyHigh::pinocchio,
-                                    bp::return_internal_reference<>()),
+                    bp::make_getter(&ResidualDataFlyHigh::pinocchio, bp::return_internal_reference<>()),
                     "pinocchio data");
 }
 

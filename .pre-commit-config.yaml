@@ -3,7 +3,7 @@ repos:
     rev: v17.0.2
     hooks:
     -   id: clang-format
-        args: ['--style={BasedOnStyle: Google, SortIncludes: false}']
+        args: ['--style={BasedOnStyle: Google, SortIncludes: false, ColumnLimit: 120, BinPackParameters: false, BinPackArguments: false}']
 -   repo: meta
     hooks:
     -   id: check-useless-excludes

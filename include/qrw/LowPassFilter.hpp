@@ -43,10 +43,8 @@ class LowPassFilter {
   VectorN y_;      // Latest result
   Vector6 accum_;  // Used to compute the result (accumulation)
 
-  std::deque<Vector6> x_queue_;  // Store the last measurements for product with
-                                 // denominator coefficients
-  std::deque<Vector6> y_queue_;  // Store the last results for product with
-                                 // numerator coefficients
+  std::deque<Vector6> x_queue_;  // Store the last measurements for product with denominator coefficients
+  std::deque<Vector6> y_queue_;  // Store the last results for product with numerator coefficients
 
   bool init_;  // Initialisation flag
 };

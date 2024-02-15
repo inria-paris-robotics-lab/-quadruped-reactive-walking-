@@ -22,22 +22,25 @@ struct params_pickle_suite : bp::pickle_suite {
 constexpr auto rvp_by_value = bp::return_value_policy<bp::return_by_value>();
 
 void exposeParams() {
-  bp::enum_<InterpolationType>("InterpolationType")
-      .value("INTERP_CUBIC", InterpolationType::CUBIC)
-      .export_values();
+  bp::enum_<InterpolationType>("InterpolationType").value("INTERP_CUBIC", InterpolationType::CUBIC).export_values();
 
   bp::class_<Params>("Params", bp::init<>("self"))
-      .def("create_from_file", &Params::create_from_file,
+      .def("create_from_file",
+           &Params::create_from_file,
            (bp::arg("file_path") = WALK_PARAMETERS_YAML),
            "Create Params from Python with yaml file.\n")
       .staticmethod("create_from_file")
-      .def("create_from_str", &Params::create_from_str, bp::arg("content"),
+      .def("create_from_str",
+           &Params::create_from_str,
+           bp::arg("content"),
            "Create Params from Python with a yaml string.\n")
       .staticmethod("create_from_str")
-      .def("initialize_from_file", &Params::initialize_from_file,
+      .def("initialize_from_file",
+           &Params::initialize_from_file,
            bp::args("self", "file_path"),
            "Initialize Params from Python with yaml file.\n")
-      .def("initialize_from_str", &Params::initialize_from_file,
+      .def("initialize_from_str",
+           &Params::initialize_from_file,
            bp::args("self", "content"),
            "Initialize Params from Python with a yaml string.\n")
 
@@ -74,8 +77,7 @@ void exposeParams() {
       .def_readonly("gait", &Params::get_gait)
       .def_readonly("t_switch", &Params::get_t_switch)
       .def_readonly("v_switch", &Params::get_v_switch)
-      .def("set_v_switch", &Params::set_v_switch, bp::args("self", "v_switch"),
-           "Set v_switch matrix from Python.\n")
+      .def("set_v_switch", &Params::set_v_switch, bp::args("self", "v_switch"), "Set v_switch matrix from Python.\n")
       .def_readonly("enable_pyb_GUI", &Params::enable_pyb_GUI)
       .def_readonly("asynchronous_mpc", &Params::asynchronous_mpc)
       .def_readonly("mpc_in_rosnode", &Params::mpc_in_rosnode)
@@ -86,8 +88,7 @@ void exposeParams() {
       .def_readonly("N_gait", &Params::N_gait)
       .def_readonly("window_size", &Params::window_size)
       .def_readonly("h_ref", &Params::h_ref)
-      .def_readonly("footsteps_under_shoulders",
-                    &Params::footsteps_under_shoulders)
+      .def_readonly("footsteps_under_shoulders", &Params::footsteps_under_shoulders)
       .add_property("task", bp::make_getter(&Params::task, rvp_by_value))
       .add_property("sim", bp::make_getter(&Params::sim, rvp_by_value));
 

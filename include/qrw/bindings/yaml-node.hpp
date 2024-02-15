@@ -19,9 +19,7 @@ struct YamlNodeToPython {
     return bp::incref(d.ptr());
   }
 
-  static void registration() {
-    bp::to_python_converter<YAML::Node, YamlNodeToPython>();
-  }
+  static void registration() { bp::to_python_converter<YAML::Node, YamlNodeToPython>(); }
 };
 
 }  // namespace qrw

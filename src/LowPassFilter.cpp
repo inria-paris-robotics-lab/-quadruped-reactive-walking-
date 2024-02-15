@@ -1,12 +1,7 @@
 #include "qrw/LowPassFilter.hpp"
 
 LowPassFilter::LowPassFilter(Params const &params)
-    : b_(0.),
-      a_(Vector2::Zero()),
-      x_(Vector6::Zero()),
-      y_(VectorN::Zero(6, 1)),
-      accum_(Vector6::Zero()),
-      init_(false) {
+    : b_(0.), a_(Vector2::Zero()), x_(Vector6::Zero()), y_(VectorN::Zero(6, 1)), accum_(Vector6::Zero()), init_(false) {
   const double fc = 15.0;
   b_ = (2 * M_PI * params.dt_wbc * fc) / (2 * M_PI * params.dt_wbc * fc + 1.0);
 

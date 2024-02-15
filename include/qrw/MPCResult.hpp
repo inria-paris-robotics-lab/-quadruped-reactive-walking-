@@ -22,8 +22,7 @@ struct MPCResult {
     gait.setZero();
   }
 
-  MPCResult(uint Ngait, uint nx, uint nu, uint ndx)
-      : MPCResult(Ngait, nx, nu, ndx, Ngait) {}
+  MPCResult(uint Ngait, uint nx, uint nu, uint ndx) : MPCResult(Ngait, nx, nu, ndx, Ngait) {}
 
   uint get_window_size() { return static_cast<uint>(us.size()); }
 };

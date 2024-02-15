@@ -37,10 +37,9 @@ struct non_resizable_vec_member {
 
 template <typename Class, typename vector_type>
 bp::object make_non_resizable_vec_member(vector_type Class::*which) {
-  return bp::make_function(
-      detail::non_resizable_vec_member<Class, vector_type>(which),
-      bp::default_call_policies(),
-      boost::mpl::vector3<void, Class &, const vector_type &>());
+  return bp::make_function(detail::non_resizable_vec_member<Class, vector_type>(which),
+                           bp::default_call_policies(),
+                           boost::mpl::vector3<void, Class &, const vector_type &>());
 }
 
 }  // namespace qrw
