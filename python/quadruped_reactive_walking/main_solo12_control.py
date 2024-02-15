@@ -188,9 +188,7 @@ def main(args):
     device, qc = get_device(params.SIMULATION, sim_params["record_video"])
 
     if params.LOGGING or params.PLOTTING:
-        logger = LoggerControl(
-            params, log_size=params.N_SIMULATION, solver_cls_name=args.solver
-        )
+        logger = LoggerControl(params, log_size=params.N_SIMULATION, solver_cls_name=args.solver)
     else:
         logger = None
 
@@ -217,9 +215,7 @@ def main(args):
     T_whole = time.time()
     dT_whole = 0.0
     disable = params.ocp.verbose
-    bar_format = (
-        "{desc}: {percentage:.4f}%|{bar}| {n:.3f}/{total:.3f} [{elapsed}<{remaining}]"
-    )
+    bar_format = "{desc}: {percentage:.4f}%|{bar}| {n:.3f}/{total:.3f} [{elapsed}<{remaining}]"
     with tqdm.tqdm(
         desc="MPC cycles",
         total=t_max + params.dt_wbc,
@@ -251,9 +247,7 @@ def main(args):
             device.joints.set_velocity_gains(controller.result.D)
             device.joints.set_desired_positions(controller.result.q_des)
             device.joints.set_desired_velocities(controller.result.v_des)
-            device.joints.set_torques(
-                controller.result.FF_weight * controller.result.tau_ff.ravel()
-            )
+            device.joints.set_torques(controller.result.FF_weight * controller.result.tau_ff.ravel())
             device.send_command_and_wait_end_of_cycle(params.dt_wbc)
 
             if params.LOGGING or params.PLOTTING:

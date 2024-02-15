@@ -15,12 +15,8 @@ class ROSMPCAsyncClient(MultiprocessMPCWrapper):
     Wrapper to run both types of MPC (OQSP or Crocoddyl) asynchronously in a new process
     """
 
-    def __init__(
-        self, params: Params, footsteps, base_refs, solver_cls: Type[OCPAbstract]
-    ):
-        self.ros_client = ROSMPCWrapperClient(
-            params, footsteps, base_refs, solver_cls, synchronous=True
-        )
+    def __init__(self, params: Params, footsteps, base_refs, solver_cls: Type[OCPAbstract]):
+        self.ros_client = ROSMPCWrapperClient(params, footsteps, base_refs, solver_cls, synchronous=True)
 
         super().__init__(params, footsteps, base_refs, solver_cls)
 
@@ -39,9 +35,7 @@ class ROSMPCAsyncClient(MultiprocessMPCWrapper):
 
             self.ros_client.solve(k, x0, footstep, base_ref)
             res: MPCResult = self.ros_client.get_latest_result()
-            self._put_shared_data_out(
-                res.gait, res.xs, res.us, res.K, res.num_iters, res.solving_duration
-            )
+            self._put_shared_data_out(res.gait, res.xs, res.us, res.K, res.num_iters, res.solving_duration)
             self.new_result.value = True
 
     def stop_parallel_loop(self):

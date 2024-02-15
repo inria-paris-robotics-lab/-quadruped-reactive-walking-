@@ -21,24 +21,15 @@ def plot_mpc(task, mpc_result: MPCResult, base=False, joints=True):
         legend = ["Hip", "Shoulder", "Knee"]
         _, axs = plt.subplots(3, 4, sharex=True)
         for foot in range(4):
-            [
-                axs[0, foot].plot(np.array(mpc_result.xs)[:, 7 + 3 * foot + joint])
-                for joint in range(3)
-            ]
+            [axs[0, foot].plot(np.array(mpc_result.xs)[:, 7 + 3 * foot + joint]) for joint in range(3)]
             axs[0, foot].legend(legend)
             axs[0, foot].set_title("Joint positions for " + task.feet_names[foot])
 
-            [
-                axs[1, foot].plot(np.array(mpc_result.xs)[:, 19 + 6 + 3 * foot + joint])
-                for joint in range(3)
-            ]
+            [axs[1, foot].plot(np.array(mpc_result.xs)[:, 19 + 6 + 3 * foot + joint]) for joint in range(3)]
             axs[1, foot].legend(legend)
             axs[1, foot].set_title("Joint velocity for " + task.feet_names[foot])
 
-            [
-                axs[2, foot].plot(np.array(mpc_result.us)[:, 3 * foot + joint])
-                for joint in range(3)
-            ]
+            [axs[2, foot].plot(np.array(mpc_result.us)[:, 3 * foot + joint]) for joint in range(3)]
             axs[2, foot].legend(legend)
             axs[2, foot].set_title("Joint torques for foot " + task.feet_names[foot])
 

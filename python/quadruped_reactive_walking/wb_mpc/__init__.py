@@ -10,9 +10,7 @@ try:
 except ImportError:
     import warnings
 
-    warnings.warn(
-        "ProxDDP is not installed. The corresponding solvers will not be available."
-    )
+    warnings.warn("ProxDDP is not installed. The corresponding solvers will not be available.")
 
 
 def get_ocp_from_str(type_str):

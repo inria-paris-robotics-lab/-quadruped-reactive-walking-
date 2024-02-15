@@ -160,26 +160,14 @@ class LoggerControl:
 
         if self.i == 0:
             for i in range(self.params.N_gait * self.params.mpc_wbc_ratio):
-                self.target[i] = controller.footsteps[i // self.params.mpc_wbc_ratio][
-                    :, 1
-                ]
-                self.target_base_linear[i] = controller.base_refs[
-                    i // self.params.mpc_wbc_ratio
-                ].linear
-                self.target_base_angular[i] = controller.base_refs[
-                    i // self.params.mpc_wbc_ratio
-                ].angular
+                self.target[i] = controller.footsteps[i // self.params.mpc_wbc_ratio][:, 1]
+                self.target_base_linear[i] = controller.base_refs[i // self.params.mpc_wbc_ratio].linear
+                self.target_base_angular[i] = controller.base_refs[i // self.params.mpc_wbc_ratio].angular
         if self.i + self.params.N_gait * self.params.mpc_wbc_ratio < self.log_size:
-            self.target[
-                self.i + self.params.N_gait * self.params.mpc_wbc_ratio
-            ] = controller.target_footstep[:, 1]
-            self.target_base_linear[
-                self.i + self.params.N_gait * self.params.mpc_wbc_ratio
-            ] = controller.v_ref[:][:3]
+            self.target[self.i + self.params.N_gait * self.params.mpc_wbc_ratio] = controller.target_footstep[:, 1]
+            self.target_base_linear[self.i + self.params.N_gait * self.params.mpc_wbc_ratio] = controller.v_ref[:][:3]
 
-            self.target_base_angular[
-                self.i + self.params.N_gait * self.params.mpc_wbc_ratio
-            ] = controller.v_ref[:][3:]
+            self.target_base_angular[self.i + self.params.N_gait * self.params.mpc_wbc_ratio] = controller.v_ref[:][3:]
 
         if not self.params.asynchronous_mpc and not self.params.mpc_in_rosnode:
             self.t_ocp_update[self.i] = controller.mpc.ocp.t_update
@@ -214,9 +202,7 @@ class LoggerControl:
 
         legend = ["Hip", "Shoulder", "Knee"]
         figsize = (18, 6)
-        fig: plt.Figure = plt.figure(
-            figsize=figsize, dpi=FIG_DPI, constrained_layout=True
-        )
+        fig: plt.Figure = plt.figure(figsize=figsize, dpi=FIG_DPI, constrained_layout=True)
         gridspec = fig.add_gridspec(1, 2)
         gs0 = gridspec[0].subgridspec(2, 2)
         gs1 = gridspec[1].subgridspec(2, 2)
@@ -259,10 +245,7 @@ class LoggerControl:
         for i in range(4):
             plt.subplot(2, 2, i + 1)
             plt.title("Joint torques of " + str(i))
-            [
-                plt.plot(np.array(self.torquesFromCurrentMeasurment)[:, (3 * i + jj)])
-                for jj in range(3)
-            ]
+            [plt.plot(np.array(self.torquesFromCurrentMeasurment)[:, (3 * i + jj)]) for jj in range(3)]
             plt.ylabel("Torque [Nm]")
             plt.xlabel("$t$ [s]")
             plt.legend(legend)
@@ -273,23 +256,15 @@ class LoggerControl:
     def plot_target(self, save=False, filename=TEMP_DIRNAME):
         import matplotlib.pyplot as plt
 
-        t_range = np.array(
-            [k * self.params.dt_wbc for k in range(self.tstamps.shape[0])]
-        )
+        t_range = np.array([k * self.params.dt_wbc for k in range(self.tstamps.shape[0])])
         x = np.concatenate([self.q_filtered, self.v_filtered], axis=1)
-        m_feet_p_log = {
-            idx: get_translation_array(self.pd.model, x, idx)[0]
-            for idx in self.pd.feet_ids
-        }
+        m_feet_p_log = {idx: get_translation_array(self.pd.model, x, idx)[0] for idx in self.pd.feet_ids}
 
         x_mpc = [self.ocp_xs[0][0, :]]
         [x_mpc.append(x[1, :]) for x in self.ocp_xs[:-1]]
         x_mpc = np.array(x_mpc)
 
-        feet_p_log = {
-            idx: get_translation_array(self.pd.model, x_mpc, idx)[0]
-            for idx in self.pd.feet_ids
-        }
+        feet_p_log = {idx: get_translation_array(self.pd.model, x_mpc, idx)[0] for idx in self.pd.feet_ids}
 
         # Target plot
         _, axs = plt.subplots(3, 2, sharex=True)
@@ -338,10 +313,7 @@ class LoggerControl:
         legend = ["x", "y", "z"]
         for p in range(3):
             axs[p].set_title("Predicted free foot on z over " + legend[p])
-            [
-                axs[p].plot(t_range, feet_p_log[foot_id][:, p])
-                for foot_id in self.pd.feet_ids
-            ]
+            [axs[p].plot(t_range, feet_p_log[foot_id][:, p]) for foot_id in self.pd.feet_ids]
             axs[p].legend(self.pd.feet_names)
 
         if save:
@@ -376,18 +348,14 @@ class LoggerControl:
     def plot_controller_times(self, save=False, filename=TEMP_DIRNAME):
         import matplotlib.pyplot as plt
 
-        t_range = np.array(
-            [k * self.params.dt_mpc for k in range(self.tstamps.shape[0])]
-        )
+        t_range = np.array([k * self.params.dt_mpc for k in range(self.tstamps.shape[0])])
 
         alpha = 0.7
         plt.figure(figsize=(9, 6), dpi=FIG_DPI)
         plt.plot(t_range, self.t_measures, "r+", alpha=alpha, label="Estimation")
         plt.plot(t_range, self.t_mpc, "g+", alpha=alpha, label="MPC (total)")
         # plt.plot(t_range, self.t_send, c="pink", marker="+", alpha=alpha, label="Sending command")
-        plt.plot(
-            t_range, self.t_loop, "+", c="violet", alpha=alpha, label="Entire loop"
-        )
+        plt.plot(t_range, self.t_loop, "+", c="violet", alpha=alpha, label="Entire loop")
         plt.plot(
             t_range,
             self.t_ocp_ddp,
@@ -416,9 +384,7 @@ class LoggerControl:
     def plot_ocp_times(self):
         import matplotlib.pyplot as plt
 
-        t_range = np.array(
-            [k * self.params.dt_mpc for k in range(self.tstamps.shape[0])]
-        )
+        t_range = np.array([k * self.params.dt_mpc for k in range(self.tstamps.shape[0])])
 
         plt.figure()
         plt.plot(t_range, self.t_ocp_update, "r+")

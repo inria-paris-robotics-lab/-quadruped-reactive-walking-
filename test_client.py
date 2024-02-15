@@ -19,9 +19,7 @@ class TestClient:
     def __init__(
         self,
     ):
-        self.solve_solver_srv = rospy.ServiceProxy(
-            "qrw_wbmpc/test", MPCSolve, persistent=True
-        )
+        self.solve_solver_srv = rospy.ServiceProxy("qrw_wbmpc/test", MPCSolve, persistent=True)
 
     def solve(self):
         return self.solve_solver_srv(MPCSolveRequest())
@@ -29,9 +27,7 @@ class TestClient:
 
 class TestServer:
     def __init__(self):
-        self._solve_service = rospy.Service(
-            "qrw_wbmpc/test", MPCSolve, self._trigger_solve
-        )
+        self._solve_service = rospy.Service("qrw_wbmpc/test", MPCSolve, self._trigger_solve)
         from quadruped_reactive_walking import MPCResult, Params
 
         p = Params.create_from_file()

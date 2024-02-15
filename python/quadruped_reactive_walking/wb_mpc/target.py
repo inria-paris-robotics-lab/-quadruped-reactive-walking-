@@ -25,9 +25,7 @@ class Target:
             self.velocity_lin_target = np.array([0.5, 0, 0])
             self.velocity_ang_target = np.array([0, 0, 0])
             # dim 6
-            self.base_vel_ref = pin.Motion(
-                self.velocity_lin_target, self.velocity_ang_target
-            )
+            self.base_vel_ref = pin.Motion(self.velocity_lin_target, self.velocity_ang_target)
         elif params.movement == "circle":
             self.A = np.array([0.05, 0.0, 0.04])
             self.offset = np.array([0.05, 0, 0.05])
@@ -70,30 +68,14 @@ class Target:
                 out[:, 1] = self._evaluate_step(1, k)
                 out[2, 1] += 0.015
             else:
-                out[0, 1] = (
-                    self.target_ramp_x[k]
-                    if k < self.ramp_length
-                    else self.target_ramp_x[-1]
-                )
-                out[1, 1] = (
-                    self.target_ramp_y[k]
-                    if k < self.ramp_length
-                    else self.target_ramp_y[-1]
-                )
-                out[2, 1] = (
-                    self.target_ramp_z[k]
-                    if k < self.ramp_length
-                    else self.target_ramp_z[-1]
-                )
+                out[0, 1] = self.target_ramp_x[k] if k < self.ramp_length else self.target_ramp_x[-1]
+                out[1, 1] = self.target_ramp_y[k] if k < self.ramp_length else self.target_ramp_y[-1]
+                out[2, 1] = self.target_ramp_z[k] if k < self.ramp_length else self.target_ramp_z[-1]
 
         return out
 
     def _evaluate_circle(self, k, initial_position):
-        return (
-            initial_position
-            + self.offset
-            + self.A * np.sin(2 * np.pi * self.freq * k * self.dt_wbc + self.phase)
-        )
+        return initial_position + self.offset + self.A * np.sin(2 * np.pi * self.freq * k * self.dt_wbc + self.phase)
 
     def _evaluate_step(self, j, k):
         n_step = k // self.k_per_step

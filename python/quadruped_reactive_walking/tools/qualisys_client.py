@@ -123,9 +123,7 @@ class QualisysClient:
             timestamp = packet.timestamp * 1e-6
 
             # Get the last position and Rotation matrix from the shared memory.
-            last_position = np.array(
-                [shared_bodyPosition[0], shared_bodyPosition[1], shared_bodyPosition[2]]
-            )
+            last_position = np.array([shared_bodyPosition[0], shared_bodyPosition[1], shared_bodyPosition[2]])
             last_rotation = np.array(
                 [
                     [

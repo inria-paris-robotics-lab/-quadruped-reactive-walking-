@@ -32,9 +32,7 @@ class PybulletWrapper:
     def __init__(self, q_init, env_id, use_flat_plane, enable_pyb_GUI, dt=0.001):
         self.applied_force = np.zeros(3)
         self.enable_gui = enable_pyb_GUI
-        GUI_OPTIONS = "--width={} --height={}".format(
-            VIDEO_CONFIG["width"], VIDEO_CONFIG["height"]
-        )
+        GUI_OPTIONS = "--width={} --height={}".format(VIDEO_CONFIG["width"], VIDEO_CONFIG["height"])
 
         # Start the client for PyBullet
         if self.enable_gui:
@@ -237,9 +235,7 @@ class PybulletWrapper:
         # Load Quadruped robot
         robotStartPos = [0, 0, 0]
         robotStartOrientation = pyb.getQuaternionFromEuler([0.0, 0.0, 0.0])
-        pyb.setAdditionalSearchPath(
-            EXAMPLE_ROBOT_DATA_MODEL_DIR + "/solo_description/robots"
-        )
+        pyb.setAdditionalSearchPath(EXAMPLE_ROBOT_DATA_MODEL_DIR + "/solo_description/robots")
         self.robotId = pyb.loadURDF("solo12.urdf", robotStartPos, robotStartOrientation)
 
         # Disable default motor control for revolute joints
@@ -254,9 +250,7 @@ class PybulletWrapper:
 
         # Initialize the robot in a specific configuration
         self.q_init = np.array([q_init]).transpose()
-        pyb.resetJointStatesMultiDof(
-            self.robotId, self.revoluteJointIndices, self.q_init
-        )
+        pyb.resetJointStatesMultiDof(self.robotId, self.revoluteJointIndices, self.q_init)
 
         # Enable torque control for revolute joints
         jointTorques = [0.0 for m in self.revoluteJointIndices]
@@ -270,9 +264,7 @@ class PybulletWrapper:
         # adjuste the robot Z position to be barely in contact with the ground
         z_offset = 0
         while True:
-            closest_points = pyb.getClosestPoints(
-                self.robotId, self.planeId, distance=0.1
-            )
+            closest_points = pyb.getClosestPoints(self.robotId, self.planeId, distance=0.1)
             lowest_dist = 1e10
             for pair in closest_points:
                 robot_point = pair[5]
@@ -381,9 +373,7 @@ class PybulletWrapper:
                     useMaximalCoordinates=True,
                 )
                 pyb.changeDynamics(tmpId, -1, lateralFriction=1.0)
-                pyb.resetBasePositionAndOrientation(
-                    self.robotId, [0, 0, 0.25], [0, 0, 0, 1]
-                )
+                pyb.resetBasePositionAndOrientation(self.robotId, [0, 0, 0.25], [0, 0, 0, 1])
 
         if self.enable_gui:
             self.set_debug_camera(q)
@@ -742,9 +732,7 @@ class PyBulletSimulator:
         """
 
         # Position and velocity of actuators
-        jointStates = pyb.getJointStates(
-            self.pyb_sim.robotId, self.revoluteJointIndices
-        )  # State of all joints
+        jointStates = pyb.getJointStates(self.pyb_sim.robotId, self.revoluteJointIndices)  # State of all joints
         self.joints.positions[:] = np.array([state[0] for state in jointStates])
         self.joints.velocities[:] = np.array([state[1] for state in jointStates])
 
@@ -769,9 +757,7 @@ class PyBulletSimulator:
         self.oMb = pin.SE3(self.rot_oMb, np.array([self.height]).transpose())
 
         # Angular velocities of the base
-        self.imu.gyroscope[:] = (
-            self.oMb.rotation.transpose() @ np.array([self.baseVel[1]]).transpose()
-        ).ravel()
+        self.imu.gyroscope[:] = (self.oMb.rotation.transpose() @ np.array([self.baseVel[1]]).transpose()).ravel()
 
         # Linear Acceleration of the base
         self.o_baseVel = np.array([self.baseVel[0]]).transpose()
@@ -785,10 +771,7 @@ class PyBulletSimulator:
             self.oMb.rotation.transpose() @ (self.o_imuVel - self.prev_o_imuVel)
         ).ravel() / self.dt
         self.prev_o_imuVel[:, 0:1] = self.o_imuVel
-        self.imu.accelerometer[:] = (
-            self.imu.linear_acceleration
-            + (self.oMb.rotation.transpose() @ self.g).ravel()
-        )
+        self.imu.accelerometer[:] = self.imu.linear_acceleration + (self.oMb.rotation.transpose() @ self.g).ravel()
 
     def send_command_and_wait_end_of_cycle(self, WaitEndOfCycle=True):
         """
@@ -803,9 +786,7 @@ class PyBulletSimulator:
         self.joints.velocities[:] = np.array([state[1] for state in joints])
 
         # Compute PD torques
-        tau_pd = self.P * (self.q_des - self.joints.positions) + self.D * (
-            self.v_des - self.joints.velocities
-        )
+        tau_pd = self.P * (self.q_des - self.joints.positions) + self.D * (self.v_des - self.joints.velocities)
 
         # Save desired torques in a storage array
         self.jointTorques = tau_pd + self.tau_ff

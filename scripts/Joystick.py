@@ -104,12 +104,8 @@ class Joystick:
         self.vYaw = self.gp.rightJoystickX.value * self.vYawScale
         self.vZ = self.gp.rightJoystickY.value * self.vZScale
 
-        if (
-            is_static and self.gp.L1Button.value
-        ):  # If static the orientation of the base is controlled
-            self.v_gp = np.array(
-                [[0.0, 0.0, -self.vZ * 0.5, -self.vX * 5, -self.vY * 2, -self.vYaw]]
-            ).T
+        if is_static and self.gp.L1Button.value:  # If static the orientation of the base is controlled
+            self.v_gp = np.array([[0.0, 0.0, -self.vZ * 0.5, -self.vX * 5, -self.vY * 2, -self.vYaw]]).T
             # print(self.v_gp.ravel())
         else:  # Otherwise the Vx, Vy, Vyaw is controlled
             self.v_gp = np.array([[-self.vY, -self.vX, 0.0, 0.0, 0.0, -self.vYaw]]).T
@@ -176,9 +172,7 @@ class Joystick:
             k (int): numero of the current iteration
         """
 
-        self.v_ref[:, 0] = self.joyCpp.handle_v_switch(
-            k, self.k_switch.reshape((-1, 1)), self.v_switch
-        )
+        self.v_ref[:, 0] = self.joyCpp.handle_v_switch(k, self.k_switch.reshape((-1, 1)), self.v_switch)
 
     def update_v_ref_predefined(self, k_loop, velID):
         """Update the reference velocity of the robot along X, Y and Yaw in local frame
@@ -459,9 +453,7 @@ class Joystick:
     def update_for_analysis(self, des_vel_analysis, N_analysis, N_steady):
         self.analysis = True
 
-        self.k_switch = np.array(
-            [0, int(1 / self.dt_wbc), N_analysis, N_analysis + N_steady]
-        )
+        self.k_switch = np.array([0, int(1 / self.dt_wbc), N_analysis, N_analysis + N_steady])
         self.v_switch = np.zeros((6, 4))
         self.v_switch[:, 2] = des_vel_analysis
         self.v_switch[:, 3] = des_vel_analysis
@@ -472,9 +464,7 @@ class Joystick:
 if __name__ == "__main__":
     from matplotlib import pyplot as plt
 
-    params = (
-        lqrw.Params.create_from_file()
-    )  # Object that holds all controller parameters
+    params = lqrw.Params.create_from_file()  # Object that holds all controller parameters
     params.predefined_vel = False
     joystick = Joystick(params)
     k = 0

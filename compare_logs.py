@@ -93,11 +93,7 @@ plt.ylabel("Error")
 plt.yscale("log")
 plt.legend()
 plt.grid(which="both")
-plt.title(
-    "Comparison between {:s} and {:s}".format(
-        get_solver_name(data1), get_solver_name(data2)
-    )
-)
+plt.title("Comparison between {:s} and {:s}".format(get_solver_name(data1), get_solver_name(data2)))
 
 # Error over time & mpc iteration
 Xerr_over_time = infNorm(Xerr[::WBC_RATIO], axis=2)

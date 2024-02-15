@@ -37,9 +37,7 @@ class AlgtrOCPAbstract(CrocOCP):
     ):
         super().__init__(params, footsteps, base_refs)
 
-        self.algtr_problem: aligator.TrajOptProblem = (
-            aligator.croc.convertCrocoddylProblem(self.croc_problem)
-        )
+        self.algtr_problem: aligator.TrajOptProblem = aligator.croc.convertCrocoddylProblem(self.croc_problem)
 
         self.num_threads = params.ocp.num_threads
         if hasattr(self.croc_problem, "num_threads"):

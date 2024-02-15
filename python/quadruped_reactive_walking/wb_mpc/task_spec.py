@@ -15,9 +15,7 @@ class TaskSpecBase:
         self.collision_model = self.robot.collision_model
         self.visual_model = self.robot.visual_model
 
-        self.robot_weight = (
-            -sum([Y.mass for Y in self.model.inertias]) * self.model.gravity.linear[2]
-        )
+        self.robot_weight = -sum([Y.mass for Y in self.model.inertias]) * self.model.gravity.linear[2]
 
         self.frozen_names = frozen_names
         self.frozen_idxs = [self.model.getJointId(id) for id in frozen_names]
@@ -68,9 +66,7 @@ class TaskSpec(TaskSpecBase):
         self.useFixedBase = 0
         self.base_id = self.model.getFrameId("base_link")
 
-        self.state_limit = np.concatenate(
-            [np.full(18, np.inf), np.zeros(6), np.ones(12) * 800]
-        )
+        self.state_limit = np.concatenate([np.full(18, np.inf), np.zeros(6), np.ones(12) * 800])
 
         task_pms = params.task["walk"]
 
@@ -90,9 +86,7 @@ class TaskSpec(TaskSpecBase):
 
         self.control_bound_w = task_pms["control_bound_w"]
         self.control_reg_w = task_pms["control_reg_w"]
-        self.state_reg_w = np.array(
-            [0] * 3 + [0] * 3 + [1e2 * 3] * 12 + [0] * 6 + [1e1 * 2] * 12
-        )
+        self.state_reg_w = np.array([0] * 3 + [0] * 3 + [1e2 * 3] * 12 + [0] * 6 + [1e1 * 2] * 12)
         self.state_bound_w = np.array([0] * 18 + [0] * 6 + [0] * 12)
         self.terminal_velocity_w = np.zeros(2 * self.nv)
         self.terminal_velocity_w[self.nv :] = task_pms["terminal_velocity_w"]
@@ -116,9 +110,7 @@ class TaskSpecFull(TaskSpecBase):
         self.friction_cone_w = 1e3
         self.control_bound_w = 1e3
         self.control_reg_w = 1e0
-        self.state_reg_w = np.array(
-            [1e2] * 3 + [1e-2] * 3 + [1e2] * 6 + [1e1] * 3 + [1e0] * 3 + [1e1] * 6
-        )
+        self.state_reg_w = np.array([1e2] * 3 + [1e-2] * 3 + [1e2] * 6 + [1e1] * 3 + [1e0] * 3 + [1e1] * 6)
         self.terminal_velocity_w = np.array([0] * 12 + [1e3] * 12)
 
         self.q0_reduced = self.q0[7:]

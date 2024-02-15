@@ -23,18 +23,14 @@ class MultiprocessMPCWrapper(MPCWrapperAbstract):
     Wrapper to run both types of MPC (OQSP or Crocoddyl) asynchronously in a new process
     """
 
-    def __init__(
-        self, params: Params, footsteps, base_refs, solver_cls: Type[OCPAbstract]
-    ):
+    def __init__(self, params: Params, footsteps, base_refs, solver_cls: Type[OCPAbstract]):
         super().__init__(params)
         self.solver_cls = solver_cls
 
         self.footsteps_plan = footsteps
         self.base_refs = base_refs
 
-        self.last_available_result: MPCResult = MPCResult(
-            self.N_gait, self.nx, self.nu, self.ndx, self.WINDOW_SIZE
-        )
+        self.last_available_result: MPCResult = MPCResult(self.N_gait, self.nx, self.nu, self.ndx, self.WINDOW_SIZE)
 
         # Shared memory used for multiprocessing
         self.smm = SharedMemoryManager()
@@ -55,9 +51,7 @@ class MultiprocessMPCWrapper(MPCWrapperAbstract):
         self.gait_shared = self.create_shared_ndarray((self.N_gait + 1, 4), np.int32)
         self.xs_shared = self.create_shared_ndarray((self.WINDOW_SIZE + 1, self.nx))
         self.us_shared = self.create_shared_ndarray((self.WINDOW_SIZE, self.nu))
-        self.Ks_shared = self.create_shared_ndarray(
-            (self.WINDOW_SIZE, self.nu, self.ndx)
-        )
+        self.Ks_shared = self.create_shared_ndarray((self.WINDOW_SIZE, self.nu, self.ndx))
         self.footstep_shared = self.create_shared_ndarray((3, 4))
         self.base_ref_shared = self.create_shared_ndarray(6)
 
@@ -119,9 +113,7 @@ class MultiprocessMPCWrapper(MPCWrapperAbstract):
                 k, x0[:], footstep[:], base_ref[:] = self._get_shared_data_in()
 
             if k == 0:
-                loop_ocp = self.solver_cls(
-                    self.params, self.footsteps_plan, self.base_refs
-                )
+                loop_ocp = self.solver_cls(self.params, self.footsteps_plan, self.base_refs)
 
             loop_ocp.push_node(k, x0, footstep, base_ref)
             loop_ocp.solve(k)

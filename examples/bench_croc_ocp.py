@@ -75,23 +75,9 @@ print("\033[1m")
 print("Python bindings:")
 xs, us, problem = createProblem()
 avrg_duration, min_duration, max_duration = runDDPSolveBenchmark(xs, us, problem)
-print(
-    "  DDP.solve [ms]: {0} ({1}, {2})".format(avrg_duration, min_duration, max_duration)
-)
-avrg_duration, min_duration, max_duration = runShootingProblemCalcBenchmark(
-    xs, us, problem
-)
-print(
-    "  ShootingProblem.calc [ms]: {0} ({1}, {2})".format(
-        avrg_duration, min_duration, max_duration
-    )
-)
-avrg_duration, min_duration, max_duration = runShootingProblemCalcDiffBenchmark(
-    xs, us, problem
-)
-print(
-    "  ShootingProblem.calcDiff [ms]: {0} ({1}, {2})".format(
-        avrg_duration, min_duration, max_duration
-    )
-)
+print("  DDP.solve [ms]: {0} ({1}, {2})".format(avrg_duration, min_duration, max_duration))
+avrg_duration, min_duration, max_duration = runShootingProblemCalcBenchmark(xs, us, problem)
+print("  ShootingProblem.calc [ms]: {0} ({1}, {2})".format(avrg_duration, min_duration, max_duration))
+avrg_duration, min_duration, max_duration = runShootingProblemCalcDiffBenchmark(xs, us, problem)
+print("  ShootingProblem.calcDiff [ms]: {0} ({1}, {2})".format(avrg_duration, min_duration, max_duration))
 print("\033[0m")

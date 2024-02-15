@@ -7,9 +7,7 @@ from concurrent.futures import ThreadPoolExecutor
 def numpy_to_multiarray_float64(np_array):
     multiarray = Float64MultiArray()
     multiarray.layout.dim = [
-        MultiArrayDimension(
-            "dim%d" % i, np_array.shape[i], np_array.shape[i] * np_array.dtype.itemsize
-        )
+        MultiArrayDimension("dim%d" % i, np_array.shape[i], np_array.shape[i] * np_array.dtype.itemsize)
         for i in range(np_array.ndim)
     ]
     multiarray.data = np_array.ravel().tolist()
@@ -57,15 +55,11 @@ class AsyncServiceProxy(object):
             print('Waiting...')
     """
 
-    def __init__(
-        self, service_name, service_type, persistent=True, headers=None, callback=None
-    ):
+    def __init__(self, service_name, service_type, persistent=True, headers=None, callback=None):
         """Create an asynchronous service proxy."""
 
         self.executor = ThreadPoolExecutor(max_workers=1)
-        self.service_proxy = rospy.ServiceProxy(
-            service_name, service_type, persistent, headers
-        )
+        self.service_proxy = rospy.ServiceProxy(service_name, service_type, persistent, headers)
         self.callback = callback
 
     def __call__(self, *args, **kwargs):

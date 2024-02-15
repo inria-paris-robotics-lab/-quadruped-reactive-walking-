@@ -63,9 +63,7 @@ class Controller:
     t_mpc = 0.0
     q_security = np.array([1.2, 2.1, 3.14] * 4)
 
-    def __init__(
-        self, params: qrw.Params, q_init, solver_cls: Type[wb_mpc.OCPAbstract]
-    ):
+    def __init__(self, params: qrw.Params, q_init, solver_cls: Type[wb_mpc.OCPAbstract]):
         """
         Function that computes the reference control (tau, q_des, v_des and gains)
 
@@ -98,9 +96,7 @@ class Controller:
         self.result.v_des = self.task.v0[6:].copy()
 
         self.target = Target(params)
-        self.footsteps, self.base_refs = make_footsteps_and_refs(
-            self.params, self.target
-        )
+        self.footsteps, self.base_refs = make_footsteps_and_refs(self.params, self.target)
 
         self.default_footstep = make_initial_footstep(params.q_init)
         self.target_base = pin.Motion.Zero()
@@ -134,15 +130,11 @@ class Controller:
             if self.params.asynchronous_mpc:
                 from .wbmpc_wrapper_ros_mp import ROSMPCAsyncClient
 
-                return ROSMPCAsyncClient(
-                    self.params, self.footsteps, self.base_refs, solver_cls
-                )
+                return ROSMPCAsyncClient(self.params, self.footsteps, self.base_refs, solver_cls)
             else:
                 from .wbmpc_wrapper_ros import ROSMPCWrapperClient
 
-                return ROSMPCWrapperClient(
-                    self.params, self.footsteps, self.base_refs, solver_cls, True
-                )
+                return ROSMPCWrapperClient(self.params, self.footsteps, self.base_refs, solver_cls, True)
         else:
             if self.params.asynchronous_mpc:
                 from .wbmpc_wrapper_multiprocess import (
@@ -181,9 +173,7 @@ class Controller:
             self.target_footstep[:] = 0.0
         else:
             self.target_base.np[:] = 0.0
-            self.target_footstep[:] = self.target.compute(
-                self.k + self.params.N_gait * self.params.mpc_wbc_ratio
-            )
+            self.target_footstep[:] = self.target.compute(self.k + self.params.N_gait * self.params.mpc_wbc_ratio)
 
         if self.k % self.params.mpc_wbc_ratio == 0:
             if self.mpc_solved:
@@ -197,9 +187,7 @@ class Controller:
 
             try:
                 self.t_mpc_start = time.time()
-                self.mpc.solve(
-                    self.k, x, self.target_footstep.copy(), self.target_base.copy()
-                )
+                self.mpc.solve(self.k, x, self.target_footstep.copy(), self.target_base.copy())
             except ValueError:
                 import traceback
 
@@ -301,14 +289,10 @@ class Controller:
             if self.clamp(self.result.q_des[3 * i + 1], -hip_max, hip_max):
                 hip_ids.append(i)
                 self.error = set_error
-            if self.task.q0[7 + 3 * i + 2] >= 0.0 and self.clamp(
-                self.result.q_des[3 * i + 2], knee_min
-            ):
+            if self.task.q0[7 + 3 * i + 2] >= 0.0 and self.clamp(self.result.q_des[3 * i + 2], knee_min):
                 knee_ids.append(i)
                 self.error = set_error
-            elif self.task.q0[7 + 3 * i + 2] <= 0.0 and self.clamp(
-                self.result.q_des[3 * i + 2], max_value=-knee_min
-            ):
+            elif self.task.q0[7 + 3 * i + 2] <= 0.0 and self.clamp(self.result.q_des[3 * i + 2], max_value=-knee_min):
                 knee_ids.append(i)
                 self.error = set_error
         if len(hip_ids) > 0:
@@ -365,9 +349,7 @@ class Controller:
         )
         print("Initial guess saved")
 
-    def run_estimator(
-        self, device, q_perfect=np.zeros(6), b_baseVel_perfect=np.zeros(3)
-    ):
+    def run_estimator(self, device, q_perfect=np.zeros(6), b_baseVel_perfect=np.zeros(3)):
         """
         Call the estimator and retrieve the reference and estimated quantities.
         Run a filter on q, h_v and v_ref.
@@ -418,9 +400,7 @@ class Controller:
 
         self.q_filtered = self.q_estimate.copy()
         self.q_filtered[:3] = self.base_position_filtered[:3]
-        self.q_filtered[3:7] = pin.Quaternion(
-            pin.rpy.rpyToMatrix(self.base_position_filtered[3:])
-        ).coeffs()
+        self.q_filtered[3:7] = pin.Quaternion(pin.rpy.rpyToMatrix(self.base_position_filtered[3:])).coeffs()
         self.v_filtered = self.v_estimate.copy()
         # self.v_filtered[:6] = np.zeros(6)
         # self.v_filtered[:6] = self.filter_v.filter(self.v_windowed, False)

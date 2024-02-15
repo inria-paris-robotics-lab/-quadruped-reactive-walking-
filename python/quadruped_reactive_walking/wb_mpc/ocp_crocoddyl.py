@@ -92,9 +92,7 @@ class CrocOCP(OCPAbstract):
         if k == 0:
             return
 
-        model, support_feet, base_vel_ref = self._builder.select_next_model(
-            k, self.current_gait, base_vel_ref
-        )
+        model, support_feet, base_vel_ref = self._builder.select_next_model(k, self.current_gait, base_vel_ref)
         active_feet_pos = get_active_feet(footsteps, support_feet)
         self._builder.update_model(model, active_feet_pos, base_vel_ref, support_feet)
         self.circular_append(model)

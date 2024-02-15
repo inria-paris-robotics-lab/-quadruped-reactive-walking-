@@ -38,12 +38,8 @@ class WalkingOCPBuilder(OCPBuilder):
             axis=0,
         )
 
-        self.life_rm, self.life_tm = self.initialize_models_from_gait(
-            self.life_gait, footsteps, base_vel_refs
-        )
-        self.start_rm, self.start_tm = self.initialize_models_from_gait(
-            self.starting_gait
-        )
+        self.life_rm, self.life_tm = self.initialize_models_from_gait(self.life_gait, footsteps, base_vel_refs)
+        self.start_rm, self.start_tm = self.initialize_models_from_gait(self.starting_gait)
         self.end_rm, self.end_tm = self.initialize_models_from_gait(self.ending_gait)
 
         self.x0 = self.task.x0
@@ -68,12 +64,7 @@ class WalkingOCPBuilder(OCPBuilder):
             no_copy_roll_insert(current_gait, self.life_gait[-1])
 
         else:
-            i = (
-                0
-                if t
-                == len(self.start_rm) + len(self.life_rm) * self.params.gait_repetitions
-                else 1
-            )
+            i = 0 if t == len(self.start_rm) + len(self.life_rm) * self.params.gait_repetitions else 1
             # choose to pich the node with impact or not
             support_feet = feet_ids[self.ending_gait[i] == 1]
             model = self.end_rm[i]
@@ -98,29 +89,19 @@ class WalkingOCPBuilder(OCPBuilder):
         feet_ids = np.asarray(self.task.feet_ids)
         for t in range(gait.shape[0]):
             support_feet_ids = feet_ids[gait[t] == 1]
-            feet_pos = (
-                get_active_feet(footsteps[t], support_feet_ids)
-                if footsteps is not None
-                else []
-            )
+            feet_pos = get_active_feet(footsteps[t], support_feet_ids) if footsteps is not None else []
             base_vel_ref = base_vel_refs[t] if base_vel_refs is not None else None
             has_switched = np.any(gait[t] != gait[t - 1])
             switch_matrix = gait[t] if has_switched else np.array([])
             switch_feet = feet_ids[switch_matrix == 1]
-            running_models.append(
-                self.make_running_model(
-                    support_feet_ids, switch_feet, feet_pos, base_vel_ref
-                )
-            )
+            running_models.append(self.make_running_model(support_feet_ids, switch_feet, feet_pos, base_vel_ref))
 
         support_feet_ids = feet_ids[gait[-1] == 1]
         terminal_model = self.make_terminal_model(support_feet_ids)
 
         return running_models, terminal_model
 
-    def _create_standard_model(
-        self, support_feet
-    ) -> crocoddyl.IntegratedActionModelAbstract:
+    def _create_standard_model(self, support_feet) -> crocoddyl.IntegratedActionModelAbstract:
         """
         Create a standard integrated action model, to be modified by the callee.
 
@@ -160,14 +141,10 @@ class WalkingOCPBuilder(OCPBuilder):
             ActivationBounds(-self.task.state_limit, self.task.state_limit),
             self.task.state_bound_w**2,
         )
-        state_bound_cost = CostModelResidual(
-            self.state, activation, state_bound_residual
-        )
+        state_bound_cost = CostModelResidual(self.state, activation, state_bound_residual)
         costs.addCost("state_limitBound", state_bound_cost, 1)
 
-        diff = DifferentialActionModelContactFwdDynamics(
-            self.state, actuation, contacts, costs, 0.0, True
-        )
+        diff = DifferentialActionModelContactFwdDynamics(self.state, actuation, contacts, costs, 0.0, True)
         return IntegratedActionModelEuler(diff, self.params.dt_mpc)
 
     def make_running_model(
@@ -213,17 +190,13 @@ class WalkingOCPBuilder(OCPBuilder):
 
     def _add_control_costs(self, costs: CostModelSum):
         nu = costs.nu
-        control_reg = CostModelResidual(
-            self.state, ResidualModelControl(self.state, self.task.uref)
-        )
+        control_reg = CostModelResidual(self.state, ResidualModelControl(self.state, self.task.uref))
         costs.addCost("control_reg", control_reg, self.task.control_reg_w)
 
         control_bound_activation = crocoddyl.ActivationModelQuadraticBarrier(
             ActivationBounds(-self.task.effort_limit, self.task.effort_limit)
         )
-        control_bound = CostModelResidual(
-            self.state, control_bound_activation, ResidualModelControl(self.state, nu)
-        )
+        control_bound = CostModelResidual(self.state, control_bound_activation, ResidualModelControl(self.state, nu))
         costs.addCost("control_bound", control_bound, self.task.control_bound_w)
 
     def make_terminal_model(self, support_feet):
@@ -241,13 +214,9 @@ class WalkingOCPBuilder(OCPBuilder):
     def _add_friction_cost(self, i: int, support_feet, costs: CostModelSum):
         nu = costs.nu
         # Contact forces
-        cone = crocoddyl.FrictionCone(
-            self.task.Rsurf, self.task.friction_mu, 4, False, 3
-        )
+        cone = crocoddyl.FrictionCone(self.task.Rsurf, self.task.friction_mu, 4, False, 3)
         residual = crocoddyl.ResidualModelContactFrictionCone(self.state, i, cone, nu)
-        activation = crocoddyl.ActivationModelQuadraticBarrier(
-            ActivationBounds(cone.lb, cone.ub)
-        )
+        activation = crocoddyl.ActivationModelQuadraticBarrier(ActivationBounds(cone.lb, cone.ub))
         friction_cost = CostModelResidual(self.state, activation, residual)
         friction_name = self.rmodel.frames[i].name + "_friction_cost"
         costs.addCost(friction_name, friction_cost, self.task.friction_cone_w)
@@ -275,9 +244,7 @@ class WalkingOCPBuilder(OCPBuilder):
         nu = costs.nu
         # Tracking foot trajectory
         name = self.rmodel.frames[i].name + "_foot_tracking"
-        residual = crocoddyl.ResidualModelFrameTranslation(
-            self.state, i, np.zeros(3), nu
-        )
+        residual = crocoddyl.ResidualModelFrameTranslation(self.state, i, np.zeros(3), nu)
         foot_tracking = CostModelResidual(self.state, residual)
         costs.addCost(name, foot_tracking, self.task.foot_tracking_w)
         costs.changeCostStatus(name, False)
@@ -286,17 +253,11 @@ class WalkingOCPBuilder(OCPBuilder):
         nu = costs.nu
 
         # Swing foot
-        ground_coll_res = crocoddyl.ResidualModelFrameTranslation(
-            self.state, i, start_pos, nu
-        )
+        ground_coll_res = crocoddyl.ResidualModelFrameTranslation(self.state, i, start_pos, nu)
 
-        bounds = ActivationBounds(
-            np.array([-1000, -1000, start_pos[2]]), np.array([1000, 1000, 1000])
-        )
+        bounds = ActivationBounds(np.array([-1000, -1000, start_pos[2]]), np.array([1000, 1000, 1000]))
         ground_coll_activ = crocoddyl.ActivationModelQuadraticBarrier(bounds)
-        ground_coll_cost = CostModelResidual(
-            self.state, ground_coll_activ, ground_coll_res
-        )
+        ground_coll_cost = CostModelResidual(self.state, ground_coll_activ, ground_coll_res)
 
         name = "{}_groundCol".format(self.rmodel.frames[i].name)
         costs.addCost(
@@ -337,9 +298,7 @@ class WalkingOCPBuilder(OCPBuilder):
             pin.ReferenceFrame.WORLD,
             nu,
         )
-        vertical_velocity_activation = ActivationModelWeightedQuad(
-            np.array([0, 0, 1, 0, 0, 0])
-        )
+        vertical_velocity_activation = ActivationModelWeightedQuad(np.array([0, 0, 1, 0, 0, 0]))
 
         name = "{}_vel_zReg".format(self.rmodel.frames[i].name)
         vertical_velocity_reg_cost = CostModelResidual(
@@ -420,13 +379,9 @@ class WalkingOCPBuilder(OCPBuilder):
             name = self.rmodel.frames[i].name + "_contact"
             model.differential.contacts.changeContactStatus(name, i in support_feet)
         if not is_terminal:
-            self.update_tracking_costs(
-                model.differential.costs, feet_pos, base_vel_ref, support_feet
-            )
+            self.update_tracking_costs(model.differential.costs, feet_pos, base_vel_ref, support_feet)
 
-    def update_tracking_costs(
-        self, costs, feet_pos: List[np.ndarray], base_vel_ref: pin.Motion, support_feet
-    ):
+    def update_tracking_costs(self, costs, feet_pos: List[np.ndarray], base_vel_ref: pin.Motion, support_feet):
         index = 0
         for i in self.task.feet_ids:
             if self.has_foot_track_cost:

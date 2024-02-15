@@ -5,9 +5,7 @@ from pinocchio import RobotWrapper
 from pinocchio.visualize import MeshcatVisualizer
 
 
-def make_meshcat_viz(
-    robot: RobotWrapper, meshColor=(0.6, 0.1, 0.1, 0.8)
-) -> MeshcatVisualizer:
+def make_meshcat_viz(robot: RobotWrapper, meshColor=(0.6, 0.1, 0.1, 0.8)) -> MeshcatVisualizer:
     import hppfcl
 
     plane = hppfcl.Plane(np.array([0, 0, 1]), 0.0)
@@ -17,9 +15,7 @@ def make_meshcat_viz(
     vmodel = robot.visual_model
     vmodel.addGeometryObject(geobj)
 
-    vizer = MeshcatVisualizer(
-        robot.model, robot.collision_model, vmodel, data=robot.data
-    )
+    vizer = MeshcatVisualizer(robot.model, robot.collision_model, vmodel, data=robot.data)
     vizer.initViewer(loadModel=True)
     vizer.setBackgroundColor()
     return vizer
