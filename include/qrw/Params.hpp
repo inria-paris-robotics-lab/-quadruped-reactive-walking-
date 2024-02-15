@@ -169,7 +169,7 @@ struct Params {
     oss << "Error: Wrong parsing of the YAML file from src file: [" << __FILE__ << "]"    \
         << ", in function: [" << __FUNCTION__ << "]"                                      \
         << ", line: " << __LINE__ << ". Node [" << child_node_name << "] does not exists" \
-        << "under the node [" parent_node_name << "].";                                   \
+        << "under the node [" << parent_node_name << "].";                                \
     throw std::runtime_error(oss.str());                                                  \
   }                                                                                       \
   assert(true)
