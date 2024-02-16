@@ -281,8 +281,8 @@ class PybulletWrapper:
             # Set base pose
             pyb.resetBasePositionAndOrientation(
                 self.robotId,
-                [pose_init[0], pose_init[1], z_offset], # Ignore Z_height to put the robot on the ground by default
-                pose_init[3:] #pin.Quaternion(pin.rpy.rpyToMatrix(p_roll, p_pitch, 0.0)).coeffs(),
+                [pose_init[0], pose_init[1], z_offset],  # Ignore Z_height to put the robot on the ground by default
+                pose_init[3:],  # pin.Quaternion(pin.rpy.rpyToMatrix(p_roll, p_pitch, 0.0)).coeffs(),
             )
 
         # Fix the base in the world frame
