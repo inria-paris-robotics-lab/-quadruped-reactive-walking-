@@ -2,7 +2,7 @@ import numpy as np
 import pinocchio as pin
 import crocoddyl
 
-from typing import List, Optional
+from typing import Optional
 from quadruped_reactive_walking import Params, ResidualModelFlyHigh
 from ..wb_mpc import task_spec
 from ..tools.utils import no_copy_roll, no_copy_roll_insert
@@ -361,7 +361,6 @@ class WalkingOCPBuilder(OCPBuilder):
             self.update_tracking_costs(model.differential.costs, base_vel_ref, support_feet)
 
     def update_tracking_costs(self, costs, base_vel_ref: pin.Motion, support_feet):
-        index = 0
         for i in self.task.feet_ids:
             name = "{}_forceReg".format(self.rmodel.frames[i].name)
             costs.changeCostStatus(name, i in support_feet)

@@ -50,7 +50,6 @@ class TestServer:
         )
 
 
-
 if __name__ == "__main__":
     # Parsing arguments
     parser = argparse.ArgumentParser()
@@ -59,17 +58,17 @@ if __name__ == "__main__":
     parser.add_argument("--service", help="Name of the service to test", default="qrw_wbmpc/test")
     args = parser.parse_args()
 
-    start_client = (args.client or not args.server)
-    start_server = (args.server or not args.client)
+    start_client = args.client or not args.server
+    start_server = args.server or not args.client
 
     # Starintg ros node
     rospy.init_node("qrw_wbmpc" + ("_client" if start_client else "") + ("_server" if start_server else ""))
 
     # Running client and/or server
-    if(start_server):
+    if start_server:
         server = TestServer(args.service)
 
-    if(start_client):
+    if start_client:
         client = TestClient(args.service)
         client.solve()
 
@@ -77,6 +76,6 @@ if __name__ == "__main__":
     assert not rospy.is_shutdown()
 
     # If the client is not started, let the server running
-    if(not start_client):
+    if not start_client:
         print(f"Server running ({args.service})...")
         rospy.spin()

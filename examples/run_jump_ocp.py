@@ -2,6 +2,7 @@ import pprint
 import crocoddyl  # noqa
 import aligator
 import numpy as np
+import pinocchio as pin
 import matplotlib.pyplot as plt
 
 from quadruped_reactive_walking import Params

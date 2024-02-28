@@ -10,6 +10,7 @@ from quadruped_reactive_walking import Params
 from . import task_spec
 from ..ocp_defs.walking import WalkingOCPBuilder
 
+
 class CrocOCP(OCPAbstract):
     """
     Generate a Crocoddyl OCP for the control task.

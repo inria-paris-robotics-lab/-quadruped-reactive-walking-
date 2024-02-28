@@ -7,6 +7,7 @@ try:
 except ImportError:
     from multiprocessing.shared_memory import SharedMemory
 
+
 def quaternionToRPY(quat):
     """
     Quaternion (4 x 0) to Roll Pitch Yaw (3 x 1)

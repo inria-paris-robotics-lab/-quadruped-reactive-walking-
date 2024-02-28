@@ -1,4 +1,5 @@
 import numpy as np
+import pinocchio as pin
 import quadruped_reactive_walking as qrw
 from quadruped_reactive_walking.controller import Controller
 import time

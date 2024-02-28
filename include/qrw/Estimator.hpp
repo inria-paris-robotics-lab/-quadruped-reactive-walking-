@@ -174,13 +174,13 @@ class Estimator {
   Vector4 feetStancePhaseDuration_;  //< Number of loops during which each foot has been in contact
   Vector4 feetStatus_;               //< Contact status of the four feet
 
-  pinocchio::Model model_;          //< Pinocchio models for frame computations and forward kinematics
-  pinocchio::Data data_;            //< Pinocchio datas for frame computations and forward kinematics
-  Vector19 q_FK_;                   //< Configuration vector for Forward Kinematics
-  Vector18 v_FK_;                   //< Velocity vector for Forward Kinematics
-  Vector3 baseVelocityFK_;          //< Base linear velocity estimated by Forward Kinematics
-  Vector3 basePositionFK_;          //< Base position estimated by Forward Kinematics
-  Vector3 b_baseVelocity_;          //< Filtered estimated velocity at center base (base frame)
+  pinocchio::Model model_;  //< Pinocchio models for frame computations and forward kinematics
+  pinocchio::Data data_;    //< Pinocchio datas for frame computations and forward kinematics
+  Vector19 q_FK_;           //< Configuration vector for Forward Kinematics
+  Vector18 v_FK_;           //< Velocity vector for Forward Kinematics
+  Vector3 baseVelocityFK_;  //< Base linear velocity estimated by Forward Kinematics
+  Vector3 basePositionFK_;  //< Base position estimated by Forward Kinematics
+  Vector3 b_baseVelocity_;  //< Filtered estimated velocity at center base (base frame)
 
   ComplementaryFilter positionFilter_;  //< Complementary filter for base position
   ComplementaryFilter velocityFilter_;  //< Complementary filter for base velocity
