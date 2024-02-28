@@ -32,10 +32,9 @@ class AlgtrOCPAbstract(CrocOCP):
     def __init__(
         self,
         params: Params,
-        footsteps,
-        base_refs,
+        base_vel_refs,
     ):
-        super().__init__(params, footsteps, base_refs)
+        super().__init__(params, base_vel_refs)
 
         self.algtr_problem: aligator.TrajOptProblem = aligator.croc.convertCrocoddylProblem(self.croc_problem)
 
@@ -110,12 +109,11 @@ class AlgtrOCPFDDP(AlgtrOCPAbstract):
     def __init__(
         self,
         params: Params,
-        footsteps,
-        base_refs,
+        base_vel_refs,
     ):
         print(Fore.BLUE + "[using SolverFDDP]" + Fore.RESET)
         self.solver = aligator.SolverFDDP(params.ocp.tol)
-        super().__init__(params, footsteps, base_refs)
+        super().__init__(params, base_vel_refs)
 
     def get_type_str():
         return "algtr-fddp"
@@ -124,13 +122,13 @@ class AlgtrOCPFDDP(AlgtrOCPAbstract):
 class AlgtrOCPProx(AlgtrOCPAbstract):
     """Solve the OCP using aligator."""
 
-    def __init__(self, params: Params, footsteps, base_refs):
+    def __init__(self, params: Params, base_vel_refs):
         print(Fore.GREEN + "[using SolverProxDDP]" + Fore.RESET)
         mu_init = 1e-11
         self.solver = aligator.SolverProxDDP(params.ocp.tol, mu_init)
         self.solver.force_initial_condition = True
         self.solver.rollout_type = aligator.ROLLOUT_LINEAR
-        super().__init__(params, footsteps, base_refs)
+        super().__init__(params, base_vel_refs)
 
     def get_type_str():
         return "algtr-prox"

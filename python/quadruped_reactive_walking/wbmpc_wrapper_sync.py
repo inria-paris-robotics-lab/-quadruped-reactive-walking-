@@ -11,19 +11,19 @@ class SyncMPCWrapper(MPCWrapperAbstract):
     Wrapper to run both types of MPC (OQSP or Crocoddyl) in a synchronous manner in the main thread.
     """
 
-    def __init__(self, params: Params, footsteps, base_refs, solver_cls: Type[OCPAbstract]):
+    def __init__(self, params: Params, base_vel_refs, solver_cls: Type[OCPAbstract]):
         super().__init__(params)
         self.solver_cls = solver_cls
 
-        self.ocp = solver_cls(params, footsteps, base_refs)
+        self.ocp = solver_cls(params, base_vel_refs)
 
         self.last_available_result: MPCResult = MPCResult(
             self.params.N_gait, self.pd.nx, self.pd.nu, self.pd.ndx, self.WINDOW_SIZE
         )
         self.new_result = False
 
-    def solve(self, k, x0, footstep, base_vel_ref):
-        self.ocp.push_node(k, x0, footstep, base_vel_ref)
+    def solve(self, k, x0, base_vel_ref):
+        self.ocp.push_node(k, x0, base_vel_ref)
         self.ocp.solve(k)
 
         gait, xs, us, K, solving_duration = self.ocp.get_results(self.WINDOW_SIZE)

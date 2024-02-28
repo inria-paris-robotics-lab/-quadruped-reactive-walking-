@@ -160,11 +160,9 @@ class LoggerControl:
 
         if self.i == 0:
             for i in range(self.params.N_gait * self.params.mpc_wbc_ratio):
-                self.target[i] = controller.footsteps[i // self.params.mpc_wbc_ratio][:, 1]
-                self.target_base_linear[i] = controller.base_refs[i // self.params.mpc_wbc_ratio].linear
-                self.target_base_angular[i] = controller.base_refs[i // self.params.mpc_wbc_ratio].angular
+                self.target_base_linear[i] = controller.base_vel_refs[i // self.params.mpc_wbc_ratio].linear
+                self.target_base_angular[i] = controller.base_vel_refs[i // self.params.mpc_wbc_ratio].angular
         if self.i + self.params.N_gait * self.params.mpc_wbc_ratio < self.log_size:
-            self.target[self.i + self.params.N_gait * self.params.mpc_wbc_ratio] = controller.target_footstep[:, 1]
             self.target_base_linear[self.i + self.params.N_gait * self.params.mpc_wbc_ratio] = controller.v_ref[:][:3]
 
             self.target_base_angular[self.i + self.params.N_gait * self.params.mpc_wbc_ratio] = controller.v_ref[:][3:]

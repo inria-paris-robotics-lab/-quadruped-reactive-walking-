@@ -41,13 +41,11 @@ class TestServer:
 def fake_in_data():
     k = 0
     x0 = np.random.randn(37)
-    footstep = np.random.randn(3, 4)
-    base_ref = np.array([0.5, 0, 0, 0, 0, 0])
+    base_vel_ref = np.array([0.5, 0, 0, 0, 0, 0])
     req = MPCSolveRequest(
         k=k,
         x0=numpy_to_multiarray_float64(x0),
-        footstep=numpy_to_multiarray_float64(footstep),
-        base_ref=numpy_to_multiarray_float64(base_ref),
+        base_vel_ref=numpy_to_multiarray_float64(base_vel_ref),
     )
     return req
 

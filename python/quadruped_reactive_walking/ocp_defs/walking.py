@@ -23,7 +23,7 @@ from crocoddyl import (
 class WalkingOCPBuilder(OCPBuilder):
     """Builder class to define the walking OCP."""
 
-    def __init__(self, params: Params, footsteps, base_vel_refs):
+    def __init__(self, params: Params, base_vel_refs):
         super().__init__(params)
         self.task = task_spec.TaskSpec(params)
         self.state = StateMultibody(self.rmodel)
@@ -38,7 +38,7 @@ class WalkingOCPBuilder(OCPBuilder):
             axis=0,
         )
 
-        self.life_rm, self.life_tm = self.initialize_models_from_gait(self.life_gait, footsteps, base_vel_refs)
+        self.life_rm, self.life_tm = self.initialize_models_from_gait(self.life_gait, base_vel_refs)
         self.start_rm, self.start_tm = self.initialize_models_from_gait(self.starting_gait)
         self.end_rm, self.end_tm = self.initialize_models_from_gait(self.ending_gait)
 
@@ -79,22 +79,18 @@ class WalkingOCPBuilder(OCPBuilder):
     def rmodel(self):
         return self.task.model
 
-    def initialize_models_from_gait(self, gait, footsteps=None, base_vel_refs=None):
+    def initialize_models_from_gait(self, gait, base_vel_refs=None):
         """Create action models (problem stages) from a gait matrix and other optional data."""
         # both or neither must be none
-        assert (footsteps is None) == (base_vel_refs is None)
-        if footsteps is not None:
-            assert len(footsteps) == len(base_vel_refs)
         running_models = []
         feet_ids = np.asarray(self.task.feet_ids)
         for t in range(gait.shape[0]):
             support_feet_ids = feet_ids[gait[t] == 1]
-            feet_pos = get_active_feet(footsteps[t], support_feet_ids) if footsteps is not None else []
             base_vel_ref = base_vel_refs[t] if base_vel_refs is not None else None
             has_switched = np.any(gait[t] != gait[t - 1])
             switch_matrix = gait[t] if has_switched else np.array([])
             switch_feet = feet_ids[switch_matrix == 1]
-            running_models.append(self.make_running_model(support_feet_ids, switch_feet, feet_pos, base_vel_ref))
+            running_models.append(self.make_running_model(support_feet_ids, switch_feet, base_vel_ref))
 
         support_feet_ids = feet_ids[gait[-1] == 1]
         terminal_model = self.make_terminal_model(support_feet_ids)
@@ -151,7 +147,6 @@ class WalkingOCPBuilder(OCPBuilder):
         self,
         support_feet,
         switch_feet,
-        feet_pos: List[np.ndarray],
         base_vel_ref: Optional[pin.Motion],
     ):
         """
@@ -164,8 +159,6 @@ class WalkingOCPBuilder(OCPBuilder):
 
             self._add_friction_cost(i, support_feet, costs)
             self._add_force_reg(i, model)
-            if self.has_foot_track_cost:
-                self._add_foot_track_cost(i, costs)
             if self.has_ground_collision:
                 self._add_ground_coll_penalty(i, costs, start_pos)
             if self.has_fly_high:
@@ -185,7 +178,7 @@ class WalkingOCPBuilder(OCPBuilder):
 
         self._add_control_costs(costs)
 
-        self.update_tracking_costs(costs, feet_pos, base_vel_ref, support_feet)
+        self.update_tracking_costs(costs, base_vel_ref, support_feet)
         return model
 
     def _add_control_costs(self, costs: CostModelSum):
@@ -234,19 +227,6 @@ class WalkingOCPBuilder(OCPBuilder):
             crocoddyl.ResidualModelContactForce(self.state, i, ref_force, 3, nu),
         )
         costs.addCost(name, force_reg, self.task.force_reg_w)
-        costs.changeCostStatus(name, False)
-
-    @property
-    def has_foot_track_cost(self):
-        return self.task.foot_tracking_w > 0
-
-    def _add_foot_track_cost(self, i: int, costs: CostModelSum):
-        nu = costs.nu
-        # Tracking foot trajectory
-        name = self.rmodel.frames[i].name + "_foot_tracking"
-        residual = crocoddyl.ResidualModelFrameTranslation(self.state, i, np.zeros(3), nu)
-        foot_tracking = CostModelResidual(self.state, residual)
-        costs.addCost(name, foot_tracking, self.task.foot_tracking_w)
         costs.changeCostStatus(name, False)
 
     def _add_ground_coll_penalty(self, i: int, costs: CostModelSum, start_pos):
@@ -369,7 +349,6 @@ class WalkingOCPBuilder(OCPBuilder):
     def update_model(
         self,
         model,
-        feet_pos,
         base_vel_ref: Optional[pin.Motion],
         support_feet,
         is_terminal=False,
@@ -379,18 +358,11 @@ class WalkingOCPBuilder(OCPBuilder):
             name = self.rmodel.frames[i].name + "_contact"
             model.differential.contacts.changeContactStatus(name, i in support_feet)
         if not is_terminal:
-            self.update_tracking_costs(model.differential.costs, feet_pos, base_vel_ref, support_feet)
+            self.update_tracking_costs(model.differential.costs, base_vel_ref, support_feet)
 
-    def update_tracking_costs(self, costs, feet_pos: List[np.ndarray], base_vel_ref: pin.Motion, support_feet):
+    def update_tracking_costs(self, costs, base_vel_ref: pin.Motion, support_feet):
         index = 0
         for i in self.task.feet_ids:
-            if self.has_foot_track_cost:
-                name = "{}_foot_tracking".format(self.rmodel.frames[i].name)
-                if i in support_feet:
-                    costs.costs[name].cost.residual.reference = feet_pos[index]
-                    index += 1
-                costs.changeCostStatus(name, i not in support_feet)
-
             name = "{}_forceReg".format(self.rmodel.frames[i].name)
             costs.changeCostStatus(name, i in support_feet)
 
@@ -408,11 +380,3 @@ class WalkingOCPBuilder(OCPBuilder):
         if base_vel_ref is not None and self.has_base_vel_cost:
             name = "base_velocity_tracking"
             costs.costs[name].cost.residual.reference = base_vel_ref
-
-
-def get_active_feet(footstep, support_feet) -> List[np.ndarray]:
-    """Get the positions for all the active feet."""
-    feet_pos = []
-    for i, fid in enumerate(support_feet):
-        feet_pos.append(footstep[:, i])
-    return feet_pos

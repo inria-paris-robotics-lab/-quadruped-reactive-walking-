@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 
 from quadruped_reactive_walking.wb_mpc import AlgtrOCPProx, CrocOCP, OCP_TYPE_MAP
 from quadruped_reactive_walking.wb_mpc.task_spec import TaskSpec
-from quadruped_reactive_walking.wb_mpc.target import Target, make_footsteps_and_refs
 
 print("OCP registered types:", pprint.pformat(OCP_TYPE_MAP), sep="\n")
 params = qrw.Params.create_from_file()
@@ -18,14 +17,12 @@ task = TaskSpec(params)
 
 print(task)
 
-target = Target(params)
-
-footsteps, base_refs = make_footsteps_and_refs(params, target)
+base_vel_refs = [pin.Motion(np.zeros(6)) for _ in range(params.N_gait)]
 
 x0 = task.x0
 print("x0:", x0)
 
-ocp = CrocOCP(params, footsteps, base_refs)
+ocp = CrocOCP(params, base_vel_refs)
 
 nsteps = ocp.ddp.problem.T
 xs_i = [x0] * (nsteps + 1)
@@ -37,7 +34,7 @@ ocp.solve(0)
 
 print("============== PARALLEL ===================")
 
-ocp2 = AlgtrOCPProx(params, footsteps, base_refs)
+ocp2 = AlgtrOCPProx(params, base_vel_refs)
 
 ts = time.time()
 ocp2.solve(0)
@@ -51,7 +48,7 @@ ctrler = Controller(params, params.q_init, CrocOCP)
 
 print("============== SERIAL ===================")
 
-ocp3 = AlgtrOCPProx(params, footsteps, base_refs, aligator)
+ocp3 = AlgtrOCPProx(params, base_vel_refs, aligator)
 
 ts = time.time()
 ocp3.solve(0)

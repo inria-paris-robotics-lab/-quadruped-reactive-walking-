@@ -69,7 +69,6 @@ task:
     ground_collision_w: 1000.
     vertical_velocity_reg_w: 1.
     base_velocity_tracking_w: 800000.
-    foot_tracking_w: 0.
     impact_altitude_w: 1000000.
     impact_velocity_w: 100000.
     friction_cone_w: 0.

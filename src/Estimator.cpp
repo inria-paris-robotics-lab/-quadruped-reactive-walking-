@@ -28,13 +28,11 @@ Estimator::Estimator()
       phaseRemainingDuration_(0),
       feetStancePhaseDuration_(Vector4::Zero()),
       feetStatus_(Vector4::Zero()),
-      feetTargets_(Matrix34::Zero()),
       q_FK_(Vector19::Zero()),
       v_FK_(Vector18::Zero()),
       baseVelocityFK_(Vector3::Zero()),
       basePositionFK_(Vector3::Zero()),
       b_baseVelocity_(Vector3::Zero()),
-      feetPositionBarycenter_(Vector3::Zero()),
       qEstimate_(Vector19::Zero()),
       vEstimate_(Vector18::Zero()),
       vSecurity_(Vector12::Zero()),
@@ -88,7 +86,6 @@ void Estimator::initialize(Params &params) {
 }
 
 void Estimator::run(MatrixN const &gait,
-                    MatrixN const &feetTargets,
                     VectorN const &baseLinearAcceleration,
                     VectorN const &baseAngularVelocity,
                     VectorN const &baseOrientation,
@@ -96,12 +93,11 @@ void Estimator::run(MatrixN const &gait,
                     VectorN const &v,
                     VectorN const &perfectPosition,
                     Vector3 const &b_perfectVelocity) {
-  updateFeetStatus(gait, feetTargets);
+  updateFeetStatus(gait);
   updateIMUData(baseLinearAcceleration, baseAngularVelocity, baseOrientation, perfectPosition);
   updateJointData(q, v);
 
   updateForwardKinematics();
-  computeFeetPositionBarycenter();
 
   estimateVelocity(b_perfectVelocity);
   estimatePosition(perfectPosition.head(3));
@@ -143,9 +139,8 @@ void Estimator::updateReferenceState(VectorN const &vRef) {
   h_vFiltered_.tail(3) = hRb_ * vFiltered_.tail(3);
 }
 
-void Estimator::updateFeetStatus(MatrixN const &gait, MatrixN const &feetTargets) {
+void Estimator::updateFeetStatus(MatrixN const &gait) {
   feetStatus_ = gait.row(0);
-  feetTargets_ = feetTargets;
 
   feetStancePhaseDuration_ += feetStatus_;
   feetStancePhaseDuration_ = feetStancePhaseDuration_.cwiseProduct(feetStatus_);
@@ -224,18 +219,6 @@ Vector3 Estimator::computeBasePositionFromFoot(int footId) {
   return basePosition;
 }
 
-void Estimator::computeFeetPositionBarycenter() {
-  int nContactFeet = 0;
-  Vector3 feetPositions = Vector3::Zero();
-  for (int j = 0; j < 4; j++) {
-    if (feetStatus_(j) == 1.) {
-      feetPositions += feetTargets_.col(j);
-      nContactFeet++;
-    }
-  }
-  if (nContactFeet > 0) feetPositionBarycenter_ = feetPositions / nContactFeet;
-}
-
 double Estimator::computeAlphaVelocity() {
   double a = std::ceil(feetStancePhaseDuration_.maxCoeff() * 0.1) - 1;
   double b = static_cast<double>(phaseRemainingDuration_);
@@ -266,7 +249,7 @@ void Estimator::estimateVelocity(Vector3 const &b_perfectVelocity) {
 void Estimator::estimatePosition(Vector3 const &perfectPosition) {
   Matrix3 oRb = IMUQuat_.toRotationMatrix();
 
-  Vector3 basePosition = solo3D_ ? perfectPosition : (basePositionFK_ + feetPositionBarycenter_);
+  Vector3 basePosition = solo3D_ ? perfectPosition : (basePositionFK_);
   qEstimate_.head(3) = positionFilter_.compute(basePosition, oRb * b_baseVelocity_, alphaPos_);
 
   if (perfectEstimator_ || solo3D_) qEstimate_(2) = perfectPosition(2);

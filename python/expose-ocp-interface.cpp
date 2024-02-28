@@ -8,9 +8,9 @@ namespace qrw {
 struct OCPWrapper : IOCPAbstract, bp::wrapper<IOCPAbstract> {
   using IOCPAbstract::IOCPAbstract;
 
-  void push_node(uint k, const ConstVecRefN &x0, Matrix34 footsteps, Motion base_vel_ref) override {
+  void push_node(uint k, const ConstVecRefN &x0, Motion base_vel_ref) override {
     bp::override fn = get_override("push_node");
-    fn(k, x0, footsteps, base_vel_ref);
+    fn(k, x0, base_vel_ref);
   }
 
   void solve(std::size_t k) override {
@@ -30,7 +30,7 @@ void exposeSolverInterface() {
       .def("solve", bp::pure_virtual(&OCPWrapper::solve), bp::args("self", "k"))
       .def("push_node",
            bp::pure_virtual(&OCPWrapper::push_node),
-           bp::args("self", "k", "x0", "footsteps", "base_vel_ref"),
+           bp::args("self", "k", "x0", "base_vel_ref"),
            "Push a new node to the OCP.")
       .def("get_results",
            bp::pure_virtual(&OCPWrapper::get_results),

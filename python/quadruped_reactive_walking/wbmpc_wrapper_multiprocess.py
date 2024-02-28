@@ -23,12 +23,11 @@ class MultiprocessMPCWrapper(MPCWrapperAbstract):
     Wrapper to run both types of MPC (OQSP or Crocoddyl) asynchronously in a new process
     """
 
-    def __init__(self, params: Params, footsteps, base_refs, solver_cls: Type[OCPAbstract]):
+    def __init__(self, params: Params, base_vel_refs, solver_cls: Type[OCPAbstract]):
         super().__init__(params)
         self.solver_cls = solver_cls
 
-        self.footsteps_plan = footsteps
-        self.base_refs = base_refs
+        self.base_vel_refs = base_vel_refs
 
         self.last_available_result: MPCResult = MPCResult(self.N_gait, self.nx, self.nu, self.ndx, self.WINDOW_SIZE)
 
@@ -52,8 +51,7 @@ class MultiprocessMPCWrapper(MPCWrapperAbstract):
         self.xs_shared = self.create_shared_ndarray((self.WINDOW_SIZE + 1, self.nx))
         self.us_shared = self.create_shared_ndarray((self.WINDOW_SIZE, self.nu))
         self.Ks_shared = self.create_shared_ndarray((self.WINDOW_SIZE, self.nu, self.ndx))
-        self.footstep_shared = self.create_shared_ndarray((3, 4))
-        self.base_ref_shared = self.create_shared_ndarray(6)
+        self.base_vel_ref_shared = self.create_shared_ndarray(6)
 
         self.p = Process(target=self._mpc_asynchronous)
         self.p.start()
@@ -67,8 +65,8 @@ class MultiprocessMPCWrapper(MPCWrapperAbstract):
         self._shms.add(shm)
         return create_shared_ndarray(shape, dtype, shm)
 
-    def solve(self, k, x0, footstep, base_vel_ref: pin.Motion):
-        self._put_shared_data_in(k, x0, footstep, base_vel_ref.np)
+    def solve(self, k, x0, base_vel_ref: pin.Motion):
+        self._put_shared_data_in(k, x0, base_vel_ref.np)
         self.new_data.value = True
 
     def get_latest_result(self):
@@ -101,8 +99,7 @@ class MultiprocessMPCWrapper(MPCWrapperAbstract):
         """
         # Thread-local data
         x0 = np.zeros_like(self.x0_shared)
-        footstep = np.zeros_like(self.footstep_shared)
-        base_ref = np.zeros_like(self.base_ref_shared)
+        base_vel_ref = np.zeros_like(self.base_vel_ref_shared)
         while self.running.value:
             if not self.new_data.value:
                 continue
@@ -110,26 +107,25 @@ class MultiprocessMPCWrapper(MPCWrapperAbstract):
             self.new_data.value = False
 
             with self.mutex:
-                k, x0[:], footstep[:], base_ref[:] = self._get_shared_data_in()
+                k, x0[:], base_vel_ref[:] = self._get_shared_data_in()
 
             if k == 0:
-                loop_ocp = self.solver_cls(self.params, self.footsteps_plan, self.base_refs)
+                loop_ocp = self.solver_cls(self.params, self.base_vel_refs)
 
-            loop_ocp.push_node(k, x0, footstep, base_ref)
+            loop_ocp.push_node(k, x0, base_vel_ref)
             loop_ocp.solve(k)
             gait, xs, us, K, solving_time = loop_ocp.get_results(self.WINDOW_SIZE)
             self._put_shared_data_out(gait, xs, us, K, loop_ocp.num_iters, solving_time)
             self.new_result.value = True
 
-    def _put_shared_data_in(self, k, x0, footstep, base_ref):
+    def _put_shared_data_in(self, k, x0, base_vel_ref):
         """
         Put data in shared memory (input to the asynchronous MPC).
         """
         with self.mutex:
             self.in_k.value = k
             self.x0_shared[:] = x0
-            self.footstep_shared[:] = footstep
-            self.base_ref_shared[:] = base_ref
+            self.base_vel_ref_shared[:] = base_vel_ref
 
     def _get_shared_data_in(self):
         """
@@ -137,9 +133,8 @@ class MultiprocessMPCWrapper(MPCWrapperAbstract):
         """
         k = self.in_k.value
         x0 = self.x0_shared
-        footstep = self.footstep_shared
-        base_ref = self.base_ref_shared
-        return k, x0, footstep, base_ref
+        base_vel_ref = self.base_vel_ref_shared
+        return k, x0, base_vel_ref
 
     def _put_shared_data_out(self, gait, xs, us, K, num_iters, solving_time):
         """Put data in shared memory (output of the asynchronous MPC to be retrieved)."""

@@ -8,21 +8,19 @@ import pinocchio as pin
 from quadruped_reactive_walking import Params
 from crocoddyl import CostModelSum
 from . import walking
-from ..tools.utils import make_initial_footstep
 
 
 class JumpOCPBuilder:
-    def __init__(self, params: Params, footsteps, base_vel_refs):
+    def __init__(self, params: Params, base_vel_refs):
         self.params = params
-        self._base_builder = walking.WalkingOCPBuilder(params, footsteps, base_vel_refs)
+        self._base_builder = walking.WalkingOCPBuilder(params, base_vel_refs)
         self.task = self._base_builder.task
         self.state = self._base_builder.state
         self.rdata = self._base_builder.rdata
 
         self.x0 = self.task.x0
         self.jump_spec = params.task["jump"]
-        feet_pos = make_initial_footstep(params.q_init)
-        self.ground_models_1 = self.create_ground_models(feet_pos)
+        self.ground_models_1 = self.create_ground_models()
         jump_vel = np.asarray(self.jump_spec["jump_velocity"])
         jump_vel = pin.Motion(jump_vel)
         self.jump_models = self.create_jump_model(jump_vel)
@@ -47,11 +45,11 @@ class JumpOCPBuilder:
         assert len(rms) == N
         return rms, ground_tm
 
-    def create_ground_models(self, feet_pos):
+    def create_ground_models(self):
         rms = []
         support_feet = np.asarray(self.task.feet_ids)
         for k in range(self.params.N_gait):
-            m = self._base_builder.make_running_model(support_feet, [], feet_pos, None)
+            m = self._base_builder.make_running_model(support_feet, [], None)
             rms.append(m)
         return rms, self._base_builder.make_terminal_model(support_feet)
 

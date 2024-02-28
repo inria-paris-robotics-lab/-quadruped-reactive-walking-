@@ -32,7 +32,6 @@ class Estimator {
   /// states of the robot
   ///
   /// \param[in] gait Gait matrix that stores current and future contact status of the feet
-  /// \param[in] goals Target positions of the four feet
   /// \param[in] baseLinearAcceleration Linear acceleration of the IMU (gravity compensated)
   /// \param[in] baseAngularVelocity Angular velocity of the IMU
   /// \param[in] baseOrientation Quaternion orientation of the IMU
@@ -41,7 +40,6 @@ class Estimator {
   /// \param[in] perfectPosition Position of the robot in world frame
   /// \param[in] b_perfectVelocity Velocity of the robot in base frame
   void run(MatrixN const& gait,
-           MatrixN const& goals,
            VectorN const& baseLinearAcceleration,
            VectorN const& baseAngularVelocity,
            VectorN const& baseOrientation,
@@ -62,10 +60,8 @@ class Estimator {
   VectorN getVEstimate() { return vEstimate_; }
   VectorN getVSecurity() { return vSecurity_; }
   VectorN getFeetStatus() { return feetStatus_; }
-  MatrixN getFeetTargets() { return feetTargets_; }
   Vector3 getBaseVelocityFK() { return baseVelocityFK_; }
   Vector3 getBasePositionFK() { return basePositionFK_; }
-  Vector3 getFeetPositionBarycenter() { return feetPositionBarycenter_; }
   Vector3 getBBaseVelocity() { return b_baseVelocity_; }
 
   Vector3 getFilterVelX() { return velocityFilter_.getX(); }
@@ -107,21 +103,15 @@ class Estimator {
   void updateJointData(Vector12 const& q, Vector12 const& v);
 
   /// \brief Update the feet relative data
-  /// \details update feetStatus_, feetTargets_, feetStancePhaseDuration_ and
+  /// \details update feetStatus_, feetStancePhaseDuration_ and
   /// phaseRemainingDuration_
   ///
   /// \param[in] gait Gait matrix that stores current and future contact status
-  /// of the feet \param[in] feetTargets Target positions of the four feet
-  void updateFeetStatus(MatrixN const& gait, MatrixN const& feetTargets);
+  /// of the feet
+  void updateFeetStatus(MatrixN const& gait);
 
   /// \brief Estimate base position and velocity using Forward Kinematics
   void updateForwardKinematics();
-
-  /// \brief Compute barycenter of feet in contact
-  ///
-  /// \param[in] feet_status Contact status of the four feet
-  /// \param[in] goals Target positions of the four feet
-  void computeFeetPositionBarycenter();
 
   /// \brief Estimate the velocity of the base with forward kinematics using a
   /// contact point that
@@ -183,7 +173,6 @@ class Estimator {
   int phaseRemainingDuration_;       //< Number of iterations left for the current gait phase
   Vector4 feetStancePhaseDuration_;  //< Number of loops during which each foot has been in contact
   Vector4 feetStatus_;               //< Contact status of the four feet
-  Matrix34 feetTargets_;             //< Target positions of the four feet
 
   pinocchio::Model model_;          //< Pinocchio models for frame computations and forward kinematics
   pinocchio::Data data_;            //< Pinocchio datas for frame computations and forward kinematics
@@ -192,7 +181,6 @@ class Estimator {
   Vector3 baseVelocityFK_;          //< Base linear velocity estimated by Forward Kinematics
   Vector3 basePositionFK_;          //< Base position estimated by Forward Kinematics
   Vector3 b_baseVelocity_;          //< Filtered estimated velocity at center base (base frame)
-  Vector3 feetPositionBarycenter_;  // Barycenter of feet in contact
 
   ComplementaryFilter positionFilter_;  //< Complementary filter for base position
   ComplementaryFilter velocityFilter_;  //< Complementary filter for base velocity

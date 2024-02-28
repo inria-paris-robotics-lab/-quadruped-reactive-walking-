@@ -37,8 +37,7 @@ class ROSMPCWrapperClient(MPCWrapperAbstract):
     def __init__(
         self,
         params: Params,
-        footsteps,
-        base_refs,
+        base_vel_refs,
         solver_cls: Type[OCPAbstract],
         synchronous=False,
     ):
@@ -51,15 +50,13 @@ class ROSMPCWrapperClient(MPCWrapperAbstract):
             params.N_gait, self.pd.nx, self.pd.nu, self.pd.ndx, self.WINDOW_SIZE
         )
 
-        base_refs_multiarray = listof_numpy_to_multiarray_float64(base_refs)
-        footsteps_multiarray = listof_numpy_to_multiarray_float64(footsteps)
+        base_vel_refs_multiarray = listof_numpy_to_multiarray_float64(base_vel_refs)
 
         init_solver_srv = rospy.ServiceProxy("qrw_wbmpc/init", MPCInit)
         res = init_solver_srv(
             solver_type=solver_cls.get_type_str(),
             params=params.raw_str,
-            footsteps=footsteps_multiarray,
-            base_refs=base_refs_multiarray,
+            base_vel_refs=base_vel_refs_multiarray,
         )
         assert res.success, "Error while initializing mpc on server"
 
@@ -71,12 +68,11 @@ class ROSMPCWrapperClient(MPCWrapperAbstract):
                 "qrw_wbmpc/solve", MPCSolve, callback=self._result_cb, persistent=True
             )
 
-    def solve(self, k, x0, footstep, base_ref):
+    def solve(self, k, x0, base_vel_ref):
         res = self.solve_solver_srv(
             k=k,
             x0=numpy_to_multiarray_float64(x0),
-            footstep=numpy_to_multiarray_float64(footstep),
-            base_ref=numpy_to_multiarray_float64(base_ref),
+            base_vel_ref=numpy_to_multiarray_float64(base_vel_ref),
         )
         if self.synchronous:
             self._parse_result(res)
@@ -134,10 +130,9 @@ class ROSMPCWrapperServer:
         self.ndx = self.pd.ndx
         self.solver_cls = get_ocp_from_str(msg.solver_type)
 
-        footsteps = multiarray_to_numpy_float64(msg.footsteps)
-        base_refs = [pin.Motion(v_ref) for v_ref in multiarray_to_numpy_float64(msg.base_refs)]
+        base_vel_refs = [pin.Motion(v_ref) for v_ref in multiarray_to_numpy_float64(msg.base_vel_refs)]
 
-        self.ocp = self.solver_cls(self.params, footsteps, base_refs)
+        self.ocp = self.solver_cls(self.params, base_vel_refs)
 
         self.last_available_result: MPCResult = MPCResult(
             self.params.N_gait, self.pd.nx, self.pd.nu, self.pd.ndx, self.WINDOW_SIZE
@@ -154,8 +149,7 @@ class ROSMPCWrapperServer:
         self.ocp.push_node(
             msg.k,
             multiarray_to_numpy_float64(msg.x0),
-            multiarray_to_numpy_float64(msg.footstep),
-            pin.Motion(multiarray_to_numpy_float64(msg.base_ref)),
+            pin.Motion(multiarray_to_numpy_float64(msg.base_vel_ref)),
         )
 
         self.ocp.solve(msg.k)

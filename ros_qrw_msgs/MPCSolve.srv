@@ -4,11 +4,8 @@ int64 k
 # Initial conditions
 std_msgs/Float64MultiArray x0
 
-# Gait
-std_msgs/Float64MultiArray footstep
-
 # Base reference speed
-std_msgs/Float64MultiArray base_ref
+std_msgs/Float64MultiArray base_vel_ref
 
 ---
 # The solver has been run successfully

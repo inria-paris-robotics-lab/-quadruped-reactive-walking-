@@ -78,7 +78,6 @@ class TaskSpec(TaskSpecBase):
         self.vertical_velocity_reg_w = task_pms["vertical_velocity_reg_w"]
 
         self.base_velocity_tracking_w = task_pms["base_velocity_tracking_w"]
-        self.foot_tracking_w = task_pms["foot_tracking_w"]
 
         self.impact_altitude_w = task_pms["impact_altitude_w"]
         self.impact_velocity_w = task_pms["impact_velocity_w"]
@@ -106,7 +105,6 @@ class TaskSpecFull(TaskSpecBase):
 
         # Cost function weights
         self.mu = params.task["mu"]
-        self.foot_tracking_w = 1e4
         self.friction_cone_w = 1e3
         self.control_bound_w = 1e3
         self.control_reg_w = 1e0

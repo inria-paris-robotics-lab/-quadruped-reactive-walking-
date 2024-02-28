@@ -21,10 +21,8 @@ struct EstimatorVisitor : public bp::def_visitor<EstimatorVisitor<Estimator>> {
         .def(
             "get_v_security", &Estimator::getVSecurity, bp::args("self"), "Get filtered velocity for security check.\n")
         .def("get_feet_status", &Estimator::getFeetStatus, bp::args("self"))
-        .def("get_feet_targets", &Estimator::getFeetTargets, bp::args("self"))
         .def("get_base_velocity_FK", &Estimator::getBaseVelocityFK, bp::args("self"))
         .def("get_base_position_FK", &Estimator::getBasePositionFK, bp::args("self"))
-        .def("get_feet_position_barycenter", &Estimator::getFeetPositionBarycenter, "")
         .def("get_b_base_velocity", &Estimator::getBBaseVelocity, "")
         .def("get_filter_vel_X", &Estimator::getFilterVelX, "")
         .def("get_filter_vel_DX", &Estimator::getFilterVelDX, "")
@@ -49,7 +47,6 @@ struct EstimatorVisitor : public bp::def_visitor<EstimatorVisitor<Estimator>> {
              &Estimator::run,
              bp::args("self",
                       "gait",
-                      "goals",
                       "baseLinearAcceleration",
                       "baseAngularVelocity",
                       "baseOrientation",

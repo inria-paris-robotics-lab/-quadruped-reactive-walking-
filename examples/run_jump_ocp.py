@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 
 from quadruped_reactive_walking import Params
 from quadruped_reactive_walking.ocp_defs import jump
-from quadruped_reactive_walking.wb_mpc.target import Target, make_footsteps_and_refs
 from crocoddyl import ShootingProblem
 from quadruped_reactive_walking.tools.kinematics_utils import get_translation_array
 from quadruped_reactive_walking.tools.meshcat_viewer import make_meshcat_viz
@@ -14,10 +13,9 @@ from aligator.croc import convertCrocoddylProblem
 
 
 params = Params.create_from_file()
-target = Target(params)
-footsteps, base_vel_refs = make_footsteps_and_refs(params, target)
+base_vel_refs = [pin.Motion(np.zeros(6)) for _ in range(params.N_gait)]
 
-ocp_spec = jump.JumpOCPBuilder(params, footsteps, base_vel_refs)
+ocp_spec = jump.JumpOCPBuilder(params, base_vel_refs)
 robot = ocp_spec.task.robot
 rmodel = robot.model
 

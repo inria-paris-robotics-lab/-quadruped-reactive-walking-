@@ -8,10 +8,9 @@ import quadruped_reactive_walking as qrw
 
 from crocoddyl import StateMultibody
 from . import wb_mpc
-from .wb_mpc.target import Target, make_footsteps_and_refs
 from .wb_mpc.task_spec import TaskSpec
 from .wbmpc_wrapper_abstract import MPCResult
-from .tools.utils import quaternionToRPY, make_initial_footstep
+from .tools.utils import quaternionToRPY
 from typing import Type
 
 
@@ -92,12 +91,9 @@ class Controller:
         self.result.q_des = self.task.q0[7:].copy()
         self.result.v_des = self.task.v0[6:].copy()
 
-        self.target = Target(params)
-        self.footsteps, self.base_refs = make_footsteps_and_refs(self.params, self.target)
+        self.base_vel_refs = [pin.Motion(np.zeros(6)) for _ in range(self.params.N_gait)]
 
-        self.default_footstep = make_initial_footstep(params.q_init)
         self.target_base = pin.Motion.Zero()
-        self.target_footstep = np.zeros((3, 4))
 
         self.mpc = self._create_mpc(solver_cls=solver_cls)
         assert self.mpc is not None, "Error while instanciating MPCWrapper"
@@ -127,11 +123,11 @@ class Controller:
             if self.params.asynchronous_mpc:
                 from .wbmpc_wrapper_ros_mp import ROSMPCAsyncClient
 
-                return ROSMPCAsyncClient(self.params, self.footsteps, self.base_refs, solver_cls)
+                return ROSMPCAsyncClient(self.params, self.base_vel_refs, solver_cls)
             else:
                 from .wbmpc_wrapper_ros import ROSMPCWrapperClient
 
-                return ROSMPCWrapperClient(self.params, self.footsteps, self.base_refs, solver_cls, True)
+                return ROSMPCWrapperClient(self.params, self.base_vel_refs, solver_cls, True)
         else:
             if self.params.asynchronous_mpc:
                 from .wbmpc_wrapper_multiprocess import (
@@ -141,8 +137,7 @@ class Controller:
                 from .wbmpc_wrapper_sync import SyncMPCWrapper as MPCWrapper
             return MPCWrapper(
                 self.params,
-                self.footsteps,
-                self.base_refs,
+                self.base_vel_refs,
                 solver_cls=solver_cls,
             )
 
@@ -167,10 +162,8 @@ class Controller:
 
         if self.params.movement == "base_circle" or self.params.movement == "walk":
             self.target_base.np[:] = self.v_ref
-            self.target_footstep[:] = 0.0
         else:
             self.target_base.np[:] = 0.0
-            self.target_footstep[:] = self.target.compute(self.k + self.params.N_gait * self.params.mpc_wbc_ratio)
 
         if self.k % self.params.mpc_wbc_ratio == 0:
             if self.mpc_solved:
@@ -184,7 +177,7 @@ class Controller:
 
             try:
                 self.t_mpc_start = time.time()
-                self.mpc.solve(self.k, x, self.target_footstep.copy(), self.target_base.copy())
+                self.mpc.solve(self.k, x, self.target_base.copy())
             except ValueError:
                 import traceback
 
@@ -361,7 +354,6 @@ class Controller:
 
         self.estimator.run(
             self.gait,
-            self.default_footstep,
             device.imu.linear_acceleration,
             device.imu.gyroscope,
             device.imu.attitude_euler,

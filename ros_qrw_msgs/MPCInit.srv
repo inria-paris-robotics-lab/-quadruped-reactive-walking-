@@ -4,11 +4,8 @@ string solver_type
 # Parameters of the problem
 string params
 
-# Gait
-std_msgs/Float64MultiArray footsteps
-
 # Base reference speed
-std_msgs/Float64MultiArray base_refs
+std_msgs/Float64MultiArray base_vel_refs
 
 ---
 

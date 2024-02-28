@@ -8,22 +8,18 @@ from .ocp_abstract import OCPAbstract
 from typing import Optional
 from quadruped_reactive_walking import Params
 from . import task_spec
-from ..ocp_defs.walking import (
-    WalkingOCPBuilder,
-    get_active_feet,
-)
-
+from ..ocp_defs.walking import WalkingOCPBuilder
 
 class CrocOCP(OCPAbstract):
     """
     Generate a Crocoddyl OCP for the control task.
     """
 
-    def __init__(self, params: Params, footsteps, base_refs):
+    def __init__(self, params: Params, base_vel_refs):
         super().__init__(params)
         self.task = task_spec.TaskSpec(params)
 
-        self._builder = WalkingOCPBuilder(params, footsteps, base_refs)
+        self._builder = WalkingOCPBuilder(params, base_vel_refs)
         self.rdata = self._builder.rdata
         self.current_gait = self._builder.current_gait
 
@@ -74,13 +70,12 @@ class CrocOCP(OCPAbstract):
         self.t_solve = time.time() - t_start
         self.num_iters = self.ddp.iter
 
-    def push_node(self, k, x0, footsteps, base_vel_ref: Optional[pin.Motion]):
+    def push_node(self, k, x0, base_vel_ref: Optional[pin.Motion]):
         """
         Create a shooting problem for a simple walking gait.
 
         :param k: current MPC iteration
         :param x0: initial condition
-        :param footstep: 2D array
         :param base_pose: 1D array
         """
         self.x0 = x0
@@ -93,8 +88,7 @@ class CrocOCP(OCPAbstract):
             return
 
         model, support_feet, base_vel_ref = self._builder.select_next_model(k, self.current_gait, base_vel_ref)
-        active_feet_pos = get_active_feet(footsteps, support_feet)
-        self._builder.update_model(model, active_feet_pos, base_vel_ref, support_feet)
+        self._builder.update_model(model, base_vel_ref, support_feet)
         self.circular_append(model)
         self.cycle_warm_start()
 

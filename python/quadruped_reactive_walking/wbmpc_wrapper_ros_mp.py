@@ -15,15 +15,14 @@ class ROSMPCAsyncClient(MultiprocessMPCWrapper):
     Wrapper to run both types of MPC (OQSP or Crocoddyl) asynchronously in a new process
     """
 
-    def __init__(self, params: Params, footsteps, base_refs, solver_cls: Type[OCPAbstract]):
-        self.ros_client = ROSMPCWrapperClient(params, footsteps, base_refs, solver_cls, synchronous=True)
+    def __init__(self, params: Params, base_vel_refs, solver_cls: Type[OCPAbstract]):
+        self.ros_client = ROSMPCWrapperClient(params, base_vel_refs, solver_cls, synchronous=True)
 
-        super().__init__(params, footsteps, base_refs, solver_cls)
+        super().__init__(params, base_vel_refs, solver_cls)
 
     def _mpc_asynchronous(self):
         x0 = np.zeros_like(self.x0_shared)
-        footstep = np.zeros_like(self.footstep_shared)
-        base_ref = np.zeros_like(self.base_ref_shared)
+        base_vel_ref = np.zeros_like(self.base_vel_ref_shared)
         while self.running.value:
             if not self.new_data.value:
                 continue
@@ -31,9 +30,9 @@ class ROSMPCAsyncClient(MultiprocessMPCWrapper):
             self.new_data.value = False
 
             with self.mutex:
-                k, x0[:], footstep[:], base_ref[:] = self._get_shared_data_in()
+                k, x0[:], base_vel_ref[:] = self._get_shared_data_in()
 
-            self.ros_client.solve(k, x0, footstep, base_ref)
+            self.ros_client.solve(k, x0, base_vel_ref)
             res: MPCResult = self.ros_client.get_latest_result()
             self._put_shared_data_out(res.gait, res.xs, res.us, res.K, res.num_iters, res.solving_duration)
             self.new_result.value = True
