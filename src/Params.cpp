@@ -58,14 +58,12 @@ Params::Params()
       v_switch(),
       fc_v_esti(0.0),
 
-      T_gait(0.0),                   // Period of the gait
-      footsteps_under_shoulders(12)  // Fill with zeros, will be filled with values later
+      T_gait(0.0)                   // Period of the gait
 {
   Kp_main.setZero();
   Kd_main.setZero();
   q_init.setZero();
   pose_init.setZero();
-  footsteps_under_shoulders.setZero();
 }
 
 Params Params::create_from_file(const std::string &file_path) {

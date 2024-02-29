@@ -148,7 +148,6 @@ struct Params {
   Scalar T_gait;                      // Period of the gait
   int N_gait;                         // Number of steps in gait
   uint window_size;                   // Window size
-  VectorN footsteps_under_shoulders;  // Positions of footsteps to be "under the shoulder"
 
   YAML::Node task;
   YAML::Node sim;
