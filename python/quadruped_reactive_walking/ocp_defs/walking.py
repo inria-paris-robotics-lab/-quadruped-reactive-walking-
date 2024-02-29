@@ -221,7 +221,7 @@ class WalkingOCPBuilder(OCPBuilder):
         name = "{}_forceReg".format(self.rmodel.frames[i].name)
         ref_force = pin.Force.Zero()
         nc = len(m.differential.contacts.active_set)
-        if(nc > 0):
+        if nc > 0:
             ref_force.linear[2] = self.task.robot_weight / nc
         force_reg = CostModelResidual(
             self.state,

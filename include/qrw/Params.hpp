@@ -144,10 +144,10 @@ struct Params {
   bool solo3D;  // Enable the 3D environment with corresponding planner blocks
 
   // Not defined in yaml
-  MatrixNi gait;                      // Initial gait matrix (Eigen)
-  Scalar T_gait;                      // Period of the gait
-  int N_gait;                         // Number of steps in gait
-  uint window_size;                   // Window size
+  MatrixNi gait;     // Initial gait matrix (Eigen)
+  Scalar T_gait;     // Period of the gait
+  int N_gait;        // Number of steps in gait
+  uint window_size;  // Window size
 
   YAML::Node task;
   YAML::Node sim;

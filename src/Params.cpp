@@ -58,7 +58,7 @@ Params::Params()
       v_switch(),
       fc_v_esti(0.0),
 
-      T_gait(0.0)                   // Period of the gait
+      T_gait(0.0)  // Period of the gait
 {
   Kp_main.setZero();
   Kd_main.setZero();
