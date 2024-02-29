@@ -219,9 +219,10 @@ class WalkingOCPBuilder(OCPBuilder):
         costs = m.differential.costs
         nu = costs.nu
         name = "{}_forceReg".format(self.rmodel.frames[i].name)
+        ref_force = pin.Force.Zero()
         nc = len(m.differential.contacts.active_set)
-        ref_force = np.array([0, 0, self.task.robot_weight / nc])
-        ref_force = pin.Force(ref_force, ref_force * 0.0)
+        if(nc > 0):
+            ref_force.linear[2] = self.task.robot_weight / nc
         force_reg = CostModelResidual(
             self.state,
             crocoddyl.ResidualModelContactForce(self.state, i, ref_force, 3, nu),
@@ -360,7 +361,7 @@ class WalkingOCPBuilder(OCPBuilder):
         if not is_terminal:
             self.update_tracking_costs(model.differential.costs, base_vel_ref, support_feet)
 
-    def update_tracking_costs(self, costs, base_vel_ref: pin.Motion, support_feet):
+    def update_tracking_costs(self, costs: CostModelSum, base_vel_ref: pin.Motion, support_feet):
         for i in self.task.feet_ids:
             name = "{}_forceReg".format(self.rmodel.frames[i].name)
             costs.changeCostStatus(name, i in support_feet)
